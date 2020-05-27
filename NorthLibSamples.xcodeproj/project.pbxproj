@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		006B0A69247E660100F069D3 /* NorthLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B5D00F247E64F90053BA80 /* NorthLib.framework */; };
+		006B0A6A247E660100F069D3 /* NorthLib.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00B5D00F247E64F90053BA80 /* NorthLib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		009CA17D247E642500453664 /* ZoomableImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009CA17C247E642500453664 /* ZoomableImageViewController.swift */; };
 		00C89685247E517800E4A43E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00C89684247E517800E4A43E /* AppDelegate.swift */; };
 		00C89687247E517800E4A43E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00C89686247E517800E4A43E /* SceneDelegate.swift */; };
 		00C89689247E517800E4A43E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00C89688247E517800E4A43E /* ContentView.swift */; };
@@ -18,6 +21,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		00B5D00E247E64F90053BA80 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00B5D009247E64F90053BA80 /* NorthLib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AE7122C523197AFA00B715A8;
+			remoteInfo = NorthLib;
+		};
+		00B5D010247E64F90053BA80 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00B5D009247E64F90053BA80 /* NorthLib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AE71230223197CB800B715A8;
+			remoteInfo = Test;
+		};
 		00C89698247E517900E4A43E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 00C89679247E517800E4A43E /* Project object */;
@@ -34,7 +51,23 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		006B0A6B247E660100F069D3 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				006B0A6A247E660100F069D3 /* NorthLib.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		009CA17C247E642500453664 /* ZoomableImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomableImageViewController.swift; sourceTree = "<group>"; };
+		00B5D009247E64F90053BA80 /* NorthLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NorthLib.xcodeproj; path = ../NorthLib/NorthLib.xcodeproj; sourceTree = "<group>"; };
 		00C89681247E517800E4A43E /* NorthLibSamples.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NorthLibSamples.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00C89684247E517800E4A43E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		00C89686247E517800E4A43E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -56,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				006B0A69247E660100F069D3 /* NorthLib.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,13 +110,47 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		006B0A66247E660100F069D3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		009CA177247E637000453664 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				00C89688247E517800E4A43E /* ContentView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		009CA17B247E641600453664 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				009CA17C247E642500453664 /* ZoomableImageViewController.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		00B5D00A247E64F90053BA80 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				00B5D00F247E64F90053BA80 /* NorthLib.framework */,
+				00B5D011247E64F90053BA80 /* Test.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		00C89678247E517800E4A43E = {
 			isa = PBXGroup;
 			children = (
+				00B5D009247E64F90053BA80 /* NorthLib.xcodeproj */,
 				00C89683247E517800E4A43E /* NorthLibSamples */,
 				00C8969A247E517900E4A43E /* NorthLibSamplesTests */,
 				00C896A5247E517900E4A43E /* NorthLibSamplesUITests */,
 				00C89682247E517800E4A43E /* Products */,
+				006B0A66247E660100F069D3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,9 +167,10 @@
 		00C89683247E517800E4A43E /* NorthLibSamples */ = {
 			isa = PBXGroup;
 			children = (
+				009CA17B247E641600453664 /* ViewController */,
+				009CA177247E637000453664 /* Views */,
 				00C89684247E517800E4A43E /* AppDelegate.swift */,
 				00C89686247E517800E4A43E /* SceneDelegate.swift */,
-				00C89688247E517800E4A43E /* ContentView.swift */,
 				00C8968A247E517900E4A43E /* Assets.xcassets */,
 				00C8968F247E517900E4A43E /* LaunchScreen.storyboard */,
 				00C89692247E517900E4A43E /* Info.plist */,
@@ -146,6 +215,7 @@
 				00C8967D247E517800E4A43E /* Sources */,
 				00C8967E247E517800E4A43E /* Frameworks */,
 				00C8967F247E517800E4A43E /* Resources */,
+				006B0A6B247E660100F069D3 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -226,6 +296,12 @@
 			mainGroup = 00C89678247E517800E4A43E;
 			productRefGroup = 00C89682247E517800E4A43E /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 00B5D00A247E64F90053BA80 /* Products */;
+					ProjectRef = 00B5D009247E64F90053BA80 /* NorthLib.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				00C89680247E517800E4A43E /* NorthLibSamples */,
@@ -234,6 +310,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		00B5D00F247E64F90053BA80 /* NorthLib.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = NorthLib.framework;
+			remoteRef = 00B5D00E247E64F90053BA80 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		00B5D011247E64F90053BA80 /* Test.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = Test.xctest;
+			remoteRef = 00B5D010247E64F90053BA80 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		00C8967F247E517800E4A43E /* Resources */ = {
@@ -268,6 +361,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00C89685247E517800E4A43E /* AppDelegate.swift in Sources */,
+				009CA17D247E642500453664 /* ZoomableImageViewController.swift in Sources */,
 				00C89687247E517800E4A43E /* SceneDelegate.swift in Sources */,
 				00C89689247E517800E4A43E /* ContentView.swift in Sources */,
 			);
@@ -436,6 +530,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"NorthLibSamples/Preview Content\"";
+				DEVELOPMENT_TEAM = 3R3GBCY6FA;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = NorthLibSamples/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -455,6 +550,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"NorthLibSamples/Preview Content\"";
+				DEVELOPMENT_TEAM = 3R3GBCY6FA;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = NorthLibSamples/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
