@@ -13,10 +13,33 @@ import NorthLib
 class ZoomableImageViewController: UIViewController {
   
   var detailImage: UIImage?
-//  var oi: OptionalImageItem?
+  var optionalImage: OptionalImageItem?
+  let simulateDownload = true
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    self.view.backgroundColor = UIColor.red
+    
+    if let detailImageFilePath = Bundle.main.path(forResource: "IMG_L",
+                                                  ofType: "jpg") {
+      detailImage = UIImage(contentsOfFile: detailImageFilePath)
+    }
+    
+    if let waitingImageFilePath = Bundle.main.path(forResource: "IMG_S",
+                                                   ofType: "jpg"),
+      let waitingImage = UIImage(contentsOfFile: waitingImageFilePath) {
+      let _optionalImage = OptionalImageItem(waitingImage: waitingImage)
+      self.optionalImage = _optionalImage
+      self.view = ZoomedImageView(optionalImage: _optionalImage)
+    }
+  }
+  
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    //Set Detail Image after Delay to Simulate Download
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+      if let optionalImage = self.optionalImage {
+        optionalImage.image = self.detailImage
+      }
+    }
   }
 }
