@@ -29,7 +29,11 @@ class ZoomableImageViewController: UIViewController {
       let waitingImage = UIImage(contentsOfFile: waitingImageFilePath) {
       let _optionalImage = OptionalImageItem(waitingImage: waitingImage)
       self.optionalImage = _optionalImage
-      self.view = ZoomedImageView(optionalImage: _optionalImage)
+      let zView = ZoomedImageView(optionalImage: _optionalImage)
+      zView.onX {
+        print("Close")
+      }
+      self.view = zView
     }
   }
   
