@@ -8,6 +8,56 @@
 
 import UIKit
 import SwiftUI
+import NorthLib
+
+
+/**
+ 
+ 
+ Next ToDOs
+ 
+ - more than 3 images
+ > wrong size refer: ZoomedImageView
+ 
+ 
+ 
+ 
+ */
+
+extension OptionalImageItem{
+  public convenience init(withResourceName name: String?, ofType ext: String?, tint: UIColor? = nil) {
+    self.init()
+    if let filePath = Bundle.main.path(forResource: name, ofType: ext) {
+      var img = UIImage(contentsOfFile: filePath)
+      if let _tint = tint, let _img = img{
+        img = _img.maskWithColor(color: _tint)
+      }
+      
+      self.waitingImage = img
+    }
+  }
+}
+
+extension UIImage {
+
+    public func maskWithColor(color: UIColor) -> UIImage {
+
+        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
+        let context = UIGraphicsGetCurrentContext()!
+
+        let rect = CGRect(origin: CGPoint.zero, size: size)
+        color.setFill()
+        self.draw(in: rect)
+
+        context.setBlendMode(.softLight)
+        context.fill(rect)
+
+        let resultImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return resultImage
+    }
+
+}
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   
@@ -32,7 +82,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       }
       else {
         //Using UIKitVC
-        window.rootViewController = ZoomableImageViewController()
+//        window.rootViewController = ZoomableImageViewController()
+        let icVc = ImageCollectionViewController()
+        icVc.images = [
+          OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg"),
+          OptionalImageItem(withResourceName: "IMG_XL", ofType: "jpg", tint: UIColor.red),
+          OptionalImageItem(withResourceName: "IMG_M", ofType: "jpg", tint: UIColor.green),
+          OptionalImageItem(withResourceName: "IMG_S", ofType: "jpg", tint: UIColor.purple),
+          OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.yellow),
+          OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.magenta),
+          OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.blue)
+        ]
+//        icVc.count = 3
+        icVc.index = 0
+        window.rootViewController = icVc
+        //DISLIKE @TODO!!
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+//          print("DO set Count!")
+//          icVc.count = 3
+//        }
       }
       
       self.window = window
