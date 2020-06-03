@@ -22,6 +22,42 @@ extension OptionalImageItem{
       self.waitingImage = img
     }
   }
+  
+  public convenience init(withWaitingName waitingName: String? = nil,
+                          waitingExt: String? = nil,
+                          waitingTint: UIColor? = nil,
+                          detailName: String? = nil,
+                          detailExt: String? = nil,
+                          detailTint: UIColor? = nil,
+                          exchangeTimeout:Double = 0.0) {
+    self.init()
+    
+    if let name = waitingName,
+      let ext = waitingExt,
+      let filePath = Bundle.main.path(forResource: name, ofType: ext) {
+        var img = UIImage(contentsOfFile: filePath)
+        if let _tint = waitingTint, let _img = img{
+          img = _img.maskWithColor(color: _tint)
+        }
+        self.waitingImage = img
+    }
+    
+    if let name = detailName,
+      let ext = detailExt,
+      let filePath = Bundle.main.path(forResource: name, ofType: ext) {
+        var img = UIImage(contentsOfFile: filePath)
+        if let _tint = detailTint, let _img = img{
+          img = _img.maskWithColor(color: _tint)
+        }
+      if exchangeTimeout > 0.0 {
+        DispatchQueue.main.asyncAfter(deadline: .now() + exchangeTimeout) {
+          self.image = img
+        }
+      } else {
+        self.image = img
+      }
+    }
+  }
 }
 
 extension UIImage {
@@ -87,6 +123,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       #else //OPTION 4:   using Custom IUViewController:  ImageCollectionViewController (UICollectionView)
         let icVc = ImageCollectionViewController()
         icVc.images = [
+          OptionalImageItem(withWaitingName: nil, waitingExt: nil, waitingTint: nil,
+                            detailName: "IMG_L", detailExt: "jpg", detailTint: UIColor.systemPink,
+                            exchangeTimeout: 8.0),
           OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg"),
           OptionalImageItem(withResourceName: "IMG_XL", ofType: "jpg", tint: UIColor.red),
           OptionalImageItem(withResourceName: "IMG_M", ofType: "jpg", tint: UIColor.green),
@@ -95,7 +134,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
           OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.magenta),
           OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.blue)
         ]
-        icVc.index = 0
+        icVc.index = 1
         window.rootViewController = icVc
       #endif
       
