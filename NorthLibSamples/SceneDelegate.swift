@@ -10,20 +10,6 @@ import UIKit
 import SwiftUI
 import NorthLib
 
-
-/**
- 
- 
- Next ToDOs
- 
- - more than 3 images
- > wrong size refer: ZoomedImageView
- 
- 
- 
- 
- */
-
 extension OptionalImageItem{
   public convenience init(withResourceName name: String?, ofType ext: String?, tint: UIColor? = nil) {
     self.init()
@@ -39,50 +25,66 @@ extension OptionalImageItem{
 }
 
 extension UIImage {
-
-    public func maskWithColor(color: UIColor) -> UIImage {
-
-        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
-        let context = UIGraphicsGetCurrentContext()!
-
-        let rect = CGRect(origin: CGPoint.zero, size: size)
-        color.setFill()
-        self.draw(in: rect)
-
-        context.setBlendMode(.softLight)
-        context.fill(rect)
-
-        let resultImage = UIGraphicsGetImageFromCurrentImageContext()!
-        UIGraphicsEndImageContext()
-        return resultImage
-    }
-
+  
+  public func maskWithColor(color: UIColor) -> UIImage {
+    
+    UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
+    let context = UIGraphicsGetCurrentContext()!
+    
+    let rect = CGRect(origin: CGPoint.zero, size: size)
+    color.setFill()
+    self.draw(in: rect)
+    
+    context.setBlendMode(.softLight)
+    context.fill(rect)
+    
+    let resultImage = UIGraphicsGetImageFromCurrentImageContext()!
+    UIGraphicsEndImageContext()
+    return resultImage
+  }
+  
 }
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   
   var window: UIWindow?
   
-  
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-    // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-    // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-    // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
     
-    // Create the SwiftUI view that provides the window contents.
-    let usingSwiftUI = false
-    
-    
-    // Use a UIHostingController as window root view controller.
     if let windowScene = scene as? UIWindowScene {
       let window = UIWindow(windowScene: windowScene)
-      if usingSwiftUI {
+      
+      /************************************
+       * SELECT Which Sample should be executed!
+       * using #if for swift flag to get rid of the:
+       * "Will never ececuted" Warning
+       * which appears with default if/else
+       ************************************/
+      #if false //OPTION 1:  using SwiftUi Example
         let contentView = ContentView()
         window.rootViewController = UIHostingController(rootView: contentView)
-      }
-      else {
-        //Using UIKitVC
-//        window.rootViewController = ZoomableImageViewController()
+      #elseif false //OPTION 2:  using Custom IUViewController:  ZoomableImageViewController
+        window.rootViewController = ZoomableImageViewController()
+      #elseif false //OPTION 3:  using  IUViewController with Custom View: ZoomedImageView
+        let oi = OptionalImageItem(withResourceName: "IMG_M",
+                                   ofType: "jpg",
+                                   tint: UIColor.green)
+        let zView = ZoomedImageView(optionalImage: oi)
+        zView.onX {
+          print("Close")
+        }
+        let vc = UIViewController()
+        vc.view = zView
+        window.rootViewController = vc
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15.5) {
+          if let filePath = Bundle.main.path(forResource: "IMG_L", ofType: "jpg") {
+            oi.image = UIImage(contentsOfFile: filePath)
+            print("Exchanged!")
+          }
+          
+        }
+      #else //OPTION 4:   using Custom IUViewController:  ImageCollectionViewController (UICollectionView)
         let icVc = ImageCollectionViewController()
         icVc.images = [
           OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg"),
@@ -93,20 +95,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
           OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.magenta),
           OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.blue)
         ]
-//        icVc.count = 3
         icVc.index = 0
         window.rootViewController = icVc
-        //DISLIKE @TODO!!
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-//          print("DO set Count!")
-//          icVc.count = 3
-//        }
-      }
+      #endif
       
       self.window = window
       window.makeKeyAndVisible()
     }
   }
+  
   
   func sceneDidDisconnect(_ scene: UIScene) {
     // Called as the scene is being released by the system.
@@ -138,4 +135,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   
   
 }
-
