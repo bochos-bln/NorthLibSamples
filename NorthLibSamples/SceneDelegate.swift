@@ -10,6 +10,41 @@ import UIKit
 import SwiftUI
 import NorthLib
 
+/*******
+ToDO's / Issues
+ 
+- Handle rotation from ImageCollectionViewController, not from View DONE
+    - Issue: small Image displayed => rotate => the nearby Image is also shown
+    => ToDo Solution fade Out & In or just set the transparency!
+- icv zoom is enabled & spinner is shown DONE
+- implement default x behaviour & overwritten callback
+- discuss or implement active view
+     @SEE Specs L. 123 f ....
+       > currentPage - to indicate which image is displayed
+       > numberOfPages - to specify how many dots are displayed in total
+- Test
+*/
+
+class UIControlClosureStorage {
+  let closure: () -> ()
+
+  init(attachTo: AnyObject, closure: @escaping () -> ()) {
+    self.closure = closure
+    objc_setAssociatedObject(attachTo, "[\(UUID().uuidString)]", self, .OBJC_ASSOCIATION_RETAIN)
+  }
+
+  @objc func invoke() {
+    closure()
+  }
+}
+
+extension UIControl {
+  func addAction(for controlEvents: UIControl.Event = .primaryActionTriggered, action: @escaping () -> ()) {
+    let itm = UIControlClosureStorage(attachTo: self, closure: action)
+    addTarget(itm, action: #selector(UIControlClosureStorage.invoke), for: controlEvents)
+ }
+}
+
 extension OptionalImageItem{
   public convenience init(withResourceName name: String?, ofType ext: String?, tint: UIColor? = nil) {
     self.init()
@@ -101,7 +136,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = UIHostingController(rootView: contentView)
       #elseif false //OPTION 2:  using Custom IUViewController:  ZoomableImageViewController
         window.rootViewController = ZoomableImageViewController()
-      #elseif false //OPTION 3:  using  IUViewController with Custom View: ZoomedImageView
+      #elseif false //OPTION 3:  using  UIViewController with Custom View: ZoomedImageView
         let oi = OptionalImageItem(withResourceName: "IMG_M",
                                    ofType: "jpg",
                                    tint: UIColor.green)
@@ -121,21 +156,75 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
           
         }
       #else //OPTION 4:   using Custom IUViewController:  ImageCollectionViewController (UICollectionView)
-        let icVc = ImageCollectionViewController()
-        icVc.images = [
-          OptionalImageItem(withWaitingName: nil, waitingExt: nil, waitingTint: nil,
-                            detailName: "IMG_L", detailExt: "jpg", detailTint: UIColor.systemPink,
-                            exchangeTimeout: 8.0),
-          OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg"),
-          OptionalImageItem(withResourceName: "IMG_XL", ofType: "jpg", tint: UIColor.red),
-          OptionalImageItem(withResourceName: "IMG_M", ofType: "jpg", tint: UIColor.green),
-          OptionalImageItem(withResourceName: "IMG_S", ofType: "jpg", tint: UIColor.purple),
-          OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.yellow),
-          OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.magenta),
-          OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.blue)
-        ]
-        icVc.index = 1
-        window.rootViewController = icVc
+      //The Initial VC
+      let vc = UIViewController()
+      let btn = UIButton()
+      btn.setTitle("Push ImageCollectionViewController", for: .normal)
+      btn.layer.borderColor = UIColor.white.cgColor
+      btn.layer.borderWidth = 1.0
+      btn.isEnabled = false
+      btn.titleEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+      vc.view.addSubview(btn)
+      pin(btn.centerX, to: vc.view.centerX)
+      pin(btn.centerY, to: vc.view.centerY)
+      //The ImageCollectionViewController automaticly pushed after 1s
+      let icVc = ImageCollectionViewController()
+      icVc.images = [
+        OptionalImageItem(withWaitingName: nil, waitingExt: nil,
+                          waitingTint: UIColor.systemPink,
+                          detailName: "IMG_L", detailExt: "jpg",
+                          detailTint: UIColor.systemPink,
+                          exchangeTimeout: 8.0),
+        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.black,
+                          detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.black,
+                          exchangeTimeout: 2.0),
+        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg",
+                          waitingTint: UIColor.systemIndigo,
+                          detailName: "IMG_L", detailExt: "jpg",
+                          detailTint: UIColor.systemIndigo,
+                          exchangeTimeout: 4.0),
+        OptionalImageItem(withWaitingName: "IMG_S", waitingExt: "jpg",
+                          waitingTint: nil,
+                          detailName: "IMG_L", detailExt: "jpg",
+                          detailTint: nil,
+                          exchangeTimeout: 8.0),
+        OptionalImageItem(withResourceName: "IMG_XL", ofType: "jpg", tint: UIColor.red),
+        OptionalImageItem(withResourceName: "IMG_M", ofType: "jpg", tint: UIColor.green),
+        OptionalImageItem(withResourceName: "IMG_S", ofType: "jpg", tint: UIColor.purple),
+        OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.yellow),
+        OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.magenta),
+        OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.blue)
+      ]
+      icVc.pageControlMaxDotsCount = 3
+      
+      DispatchQueue.main.asyncAfter(deadline: .now() + 20.0) {
+          //Test replacement of Max Dots with all Dots
+          icVc.pageControlMaxDotsCount = 0
+      }
+      
+      icVc.index = 1
+      icVc.pageControlColors = (UIColor.white, UIColor.rgb(0x777777))
+      
+      
+      icVc.onX {
+        print("Close from Parent!")
+      }
+      
+      let nc = UINavigationController(rootViewController: vc)
+      icVc.modalPresentationStyle = .fullScreen
+      icVc.modalTransitionStyle = .flipHorizontal
+      
+      btn.addAction {
+        vc.navigationController?.present(icVc, animated: true, completion: nil)
+      }
+      
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        vc.navigationController?.pushViewController(icVc, animated: true)
+        btn.isEnabled = true
+      }
+      
+        //Pushing default/initial VC
+        window.rootViewController = nc
       #endif
       
       self.window = window
