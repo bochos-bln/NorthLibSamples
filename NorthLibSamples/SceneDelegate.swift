@@ -17,7 +17,7 @@ ToDO's / Issues
     - Issue: small Image displayed => rotate => the nearby Image is also shown
     => ToDo Solution fade Out & In or just set the transparency!
 - icv zoom is enabled & spinner is shown DONE
-- implement default x behaviour & overwritten callback
+- implement default x behaviour & overwritten callback DONE
 - discuss or implement active view
      @SEE Specs L. 123 f ....
        > currentPage - to indicate which image is displayed
@@ -168,7 +168,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       pin(btn.centerX, to: vc.view.centerX)
       pin(btn.centerY, to: vc.view.centerY)
       //The ImageCollectionViewController automaticly pushed after 1s
-      let icVc = ImageCollectionViewController()
+      let icVc = ImageCollectionVC()
       icVc.images = [
         OptionalImageItem(withWaitingName: nil, waitingExt: nil,
                           waitingTint: UIColor.systemPink,
@@ -203,12 +203,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       }
       
       icVc.index = 1
-      icVc.pageControlColors = (UIColor.white, UIColor.rgb(0x777777))
-      
-      
-      icVc.onX {
-        print("Close from Parent!")
-      }
+      icVc.pageControlColors = (current: UIColor.rgb(0xcccccc),
+                                  other: UIColor.rgb(0xcccccc, alpha: 0.3))
+          
+//      icVc.onX {
+//        Log.log("Close from Parent!")
+//        if let nc = icVc.navigationController {
+//            nc.popViewController(animated: true)
+//          }
+//          else if let pvc = icVc.presentingViewController {
+//            pvc.dismiss(animated: true, completion: nil)
+//          }
+//      }
       
       let nc = UINavigationController(rootViewController: vc)
       icVc.modalPresentationStyle = .fullScreen
