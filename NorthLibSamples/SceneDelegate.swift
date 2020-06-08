@@ -16,8 +16,6 @@ ToDO's / Issues
 - Handle rotation from ImageCollectionViewController, not from View DONE
     - Issue: small Image displayed => rotate => the nearby Image is also shown
     => ToDo Solution fade Out & In or just set the transparency!
-- icv zoom is enabled & spinner is shown DONE
-- implement default x behaviour & overwritten callback DONE
 - discuss or implement active view
      @SEE Specs L. 123 f ....
        > currentPage - to indicate which image is displayed
@@ -170,30 +168,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       //The ImageCollectionViewController automaticly pushed after 1s
       let icVc = ImageCollectionVC()
       icVc.images = [
-        OptionalImageItem(withWaitingName: nil, waitingExt: nil,
-                          waitingTint: UIColor.systemPink,
-                          detailName: "IMG_L", detailExt: "jpg",
-                          detailTint: UIColor.systemPink,
-                          exchangeTimeout: 8.0),
-        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.black,
-                          detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.black,
-                          exchangeTimeout: 2.0),
-        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg",
-                          waitingTint: UIColor.systemIndigo,
-                          detailName: "IMG_L", detailExt: "jpg",
-                          detailTint: UIColor.systemIndigo,
-                          exchangeTimeout: 4.0),
-        OptionalImageItem(withWaitingName: "IMG_S", waitingExt: "jpg",
-                          waitingTint: nil,
-                          detailName: "IMG_L", detailExt: "jpg",
-                          detailTint: nil,
-                          exchangeTimeout: 8.0),
-        OptionalImageItem(withResourceName: "IMG_XL", ofType: "jpg", tint: UIColor.red),
-        OptionalImageItem(withResourceName: "IMG_M", ofType: "jpg", tint: UIColor.green),
-        OptionalImageItem(withResourceName: "IMG_S", ofType: "jpg", tint: UIColor.purple),
-        OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.yellow),
-        OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.magenta),
-        OptionalImageItem(withResourceName: "IMG_L", ofType: "jpg", tint: UIColor.blue)
+//        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.systemIndigo,
+//                          detailName: nil, detailExt: "jpg", detailTint: UIColor.systemIndigo,
+//                          exchangeTimeout: 2.0),
+        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.red, detailName: "IMG_S", detailExt: "jpg", detailTint: UIColor.red, exchangeTimeout: 5.0),
+        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.green, detailName: "IMG_L", detailExt: "jpg", detailTint: UIColor.green, exchangeTimeout: 4.0),
+        OptionalImageItem(withWaitingName: "IMG_S", waitingExt: "jpg", waitingTint: UIColor.blue),
+        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.yellow, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.yellow, exchangeTimeout: 8.0),
+        OptionalImageItem(withWaitingName: "IMG_S", waitingExt: "jpg", waitingTint: UIColor.purple),
+        OptionalImageItem(withWaitingName: "IMG_M", waitingExt: "jpg", waitingTint: UIColor.systemPink, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.systemPink, exchangeTimeout: 12.0),
+        OptionalImageItem(withWaitingName: "IMG_L", waitingExt: "jpg", waitingTint: UIColor.brown),
+        OptionalImageItem(withWaitingName: "IMG_XL", waitingExt: "jpg", waitingTint: UIColor.cyan, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.cyan, exchangeTimeout: 16.0),
       ]
       icVc.pageControlMaxDotsCount = 3
       
@@ -201,20 +186,42 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
           //Test replacement of Max Dots with all Dots
           icVc.pageControlMaxDotsCount = 0
       }
+      var addClosure = true
+      for oit in icVc.images {
+        addClosure = !addClosure
+        if addClosure == true { continue }
+        oit.onTap { (x, y) in
+          print("You taped at:", x, y, " in ", oit.image, oit.waitingImage)
+        }
+      }
       
-      icVc.index = 1
+      icVc.index = 0
       icVc.pageControlColors = (current: UIColor.rgb(0xcccccc),
                                   other: UIColor.rgb(0xcccccc, alpha: 0.3))
           
-//      icVc.onX {
-//        Log.log("Close from Parent!")
-//        if let nc = icVc.navigationController {
-//            nc.popViewController(animated: true)
-//          }
-//          else if let pvc = icVc.presentingViewController {
-//            pvc.dismiss(animated: true, completion: nil)
-//          }
-//      }
+
+      let oitm = icVc.images.first
+      
+      var detailImageNames = ["IMG_M", "IMG_L", "IMG_XL"]
+        
+      
+      oitm?.onHighResImgNeeded(zoomFactor: 1.8) { (callback: @escaping (UIImage?) -> ()) in
+        let imgName = detailImageNames.pop()
+        print("Generating the Image for: \(imgName).jpg")
+        
+        if imgName == nil {
+          callback(nil)
+          return;
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+          print("Callback with an image!")
+          if let filePath = Bundle.main.path(forResource: imgName, ofType: "jpg") {
+            callback(UIImage(contentsOfFile: filePath))
+          }
+        }
+      }
+            
       
       let nc = UINavigationController(rootViewController: vc)
       icVc.modalPresentationStyle = .fullScreen
