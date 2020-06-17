@@ -171,7 +171,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.systemIndigo,
 //                          detailName: nil, detailExt: "jpg", detailTint: UIColor.systemIndigo,
 //                          exchangeTimeout: 2.0),
-        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.red, detailName: "IMG_S", detailExt: "jpg", detailTint: UIColor.red, exchangeTimeout: 5.0),
+        OptionalImageItem(withWaitingName: "IMG_M", waitingExt: "jpg", waitingTint: UIColor.red, detailName: "IMG_L", detailExt: "jpg", detailTint: UIColor.red, exchangeTimeout: 1.0),
         OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.green, detailName: "IMG_L", detailExt: "jpg", detailTint: UIColor.green, exchangeTimeout: 4.0),
         OptionalImageItem(withWaitingName: "IMG_S", waitingExt: "jpg", waitingTint: UIColor.blue),
         OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.yellow, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.yellow, exchangeTimeout: 8.0),
@@ -181,19 +181,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         OptionalImageItem(withWaitingName: "IMG_XL", waitingExt: "jpg", waitingTint: UIColor.cyan, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.cyan, exchangeTimeout: 16.0),
       ]
       icVc.pageControlMaxDotsCount = 3
+      icVc.addMenuItem(title: "hallo", icon: "doc") { (str) in
+        print("handle \(str)")
+      }
+      icVc.onTap { (oimg, x, y) in
+        print("tapped at: \(x) \(y)")
+      }
       
       DispatchQueue.main.asyncAfter(deadline: .now() + 20.0) {
           //Test replacement of Max Dots with all Dots
           icVc.pageControlMaxDotsCount = 0
       }
-      var addClosure = true
-      for oit in icVc.images {
-        addClosure = !addClosure
-        if addClosure == true { continue }
-        oit.onTap { (x, y) in
-          print("You taped at:", x, y, " in ", oit.image, oit.waitingImage)
-        }
-      }
+//      var addClosure = true
+//      for oit in icVc.images {
+//        addClosure = !addClosure
+//        if addClosure == true { continue }
+//        oit.onTap { (oimg, x, y) in
+//          print("You taped at:", x, y, " in ", oit.image, oit.waitingImage)
+//        }
+//      }
       
       icVc.index = 0
       icVc.pageControlColors = (current: UIColor.rgb(0xcccccc),
@@ -205,22 +211,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       var detailImageNames = ["IMG_M", "IMG_L", "IMG_XL"]
         
       
-      oitm?.onHighResImgNeeded(zoomFactor: 1.8) { (callback: @escaping (UIImage?) -> ()) in
-        let imgName = detailImageNames.pop()
-        print("Generating the Image for: \(imgName).jpg")
-        
-        if imgName == nil {
-          callback(nil)
-          return;
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-          print("Callback with an image!")
-          if let filePath = Bundle.main.path(forResource: imgName, ofType: "jpg") {
-            callback(UIImage(contentsOfFile: filePath))
-          }
-        }
-      }
+//      oitm?.onHighResImgNeeded(zoomFactor: 1.8) { (callback: @escaping (UIImage?) -> ()) in
+//        let imgName = detailImageNames.pop()
+//        print("Generating the Image for: \(imgName).jpg")
+//
+//        if imgName == nil {
+//          callback(nil)
+//          return;
+//        }
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+//          print("Callback with an image!")
+//          if let filePath = Bundle.main.path(forResource: imgName, ofType: "jpg") {
+//            callback(UIImage(contentsOfFile: filePath))
+//          }
+//        }
+//      }
             
       
       let nc = UINavigationController(rootViewController: vc)
