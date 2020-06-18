@@ -135,7 +135,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       #elseif false //OPTION 2:  using Custom IUViewController:  ZoomableImageViewController
         window.rootViewController = ZoomableImageViewController()
       #elseif true //OPTION 2b:  using Custom IUViewController:  ZoomableImageViewController
-        window.rootViewController = UINavigationController(rootViewController: SimpleOverlayVC())
+//        window.rootViewController = UINavigationController(rootViewController: SimpleOverlayVC())
+//      window.rootViewController = OverlayAnimator(overlay: SimpleOverlayVC(), into: ChildOverlayVC())
+      window.rootViewController = SimpleOverlayVC()
       #elseif false //OPTION 3:  using  UIViewController with Custom View: ZoomedImageView
         let oi = OptionalImageItem(withResourceName: "IMG_M",
                                    ofType: "jpg",
