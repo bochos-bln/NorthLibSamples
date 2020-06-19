@@ -34,6 +34,7 @@ recognizers being active in 'overlay'.
  ToDo List
  ======
  X Calling VC's
+ O add ZoomableImageVC for Pinch Gesture
  O OverlaySpec
     O=> var shadeView: UIView = UIView()
     X=> var overlayView: UIView = UIView()
@@ -60,10 +61,17 @@ recognizers being active in 'overlay'.
  
  
  */
-class OverlayAnimator: OverlaySpec{
+// MARK: - UIScrollViewDelegate
+extension OverlayAnimator{
+  func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    print("Scrolling")
+  }
+}
+
+class OverlayAnimator: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerDelegate{
   
   var shadeView: UIView = UIView()
-  var overlayView: UIView = UIView()
+  var overlayView: UIScrollView = UIScrollView()
   var wrapper: UIView = UIView()
   
   var overlayVC: UIViewController
@@ -82,6 +90,8 @@ class OverlayAnimator: OverlaySpec{
   required init(overlay: UIViewController, into active: UIViewController) {
     overlayVC = overlay
     activeVC = active
+    super.init()
+    overlayView.delegate = self
   }
   
   func close(animated: Bool) {
@@ -134,13 +144,48 @@ class OverlayAnimator: OverlaySpec{
       targetSnapshot.removeFromSuperview()
     }
   }
-  
+  var startY:CGFloat = 0.0
+  @objc func didPanWith(gestureRecognizer: UIPanGestureRecognizer) {
+    if gestureRecognizer.state == .began {
+      startY = self.overlayVC.view.frame.origin.y
+    }
+    
+//    let anchorPoint = CGPoint(x: fromReferenceImageViewFrame.midX, y: fromReferenceImageViewFrame.midY)
+    
+    let translatedPoint = gestureRecognizer.translation(in: wrapper)
+    let verticalDelta : CGFloat = translatedPoint.y < 0 ? 0 : translatedPoint.y
+    self.overlayVC.view.frame.origin.y = verticalDelta
+    print("pan:", verticalDelta, (100-verticalDelta), gestureRecognizer.state.rawValue, startY, wrapper.frame )
+    wrapper.alpha = max(0,(100-verticalDelta))/100
+    if gestureRecognizer.state == .ended {
+      if wrapper.alpha < 0.5 {
+        self.close(animated: false)
+      }
+      else {
+        UIView.animate(seconds: 0.3) {
+          self.overlayVC.view.frame.origin.y = self.startY
+          self.wrapper.alpha = 1.0
+        }
+      }
+      
+    }
+//    self.overlayVC.view = shadeView.alpha
+
+//    let backgroundAlpha = backgroundAlphaFor(view: fromVC.view, withPanningVerticalDelta: verticalDelta)
+//    let scale = scaleFor(view: fromVC.view, withPanningVerticalDelta: verticalDelta)
+//
+//    fromVC.view.alpha = backgroundAlpha
+    
+  }
   
   func openAnimated(fromFrame: CGRect, toFrame: CGRect) {
     guard let fromSnapshot = activeVC.view.resizableSnapshotView(from: fromFrame, afterScreenUpdates: false, withCapInsets: .zero) else {
       print("cannot open due no fromsnapshot is possible may TODo if non animated!")
       return
     }
+//    overlayVC.view.alpha = 0
+    activeVC.presentSubVC(controller: overlayVC, inView: activeVC.view)
+    
     fromSnapshot.layer.masksToBounds = true
     fromSnapshot.frame = fromFrame
     
@@ -150,6 +195,11 @@ class OverlayAnimator: OverlaySpec{
     }
     
     wrapper = UIView(frame: activeVC.view.frame)
+    let panGestureRecognizer = UIPanGestureRecognizer(target: self,
+                                                      action: #selector(didPanWith(gestureRecognizer:)))
+//    panGestureRecognizer.delegate = self
+    wrapper.addGestureRecognizer(panGestureRecognizer)
+    
 //    wrapper.backgroundColor = .black //ToDo otherwise looks ugly!
     shadeView = UIView(frame: CGRect(origin: .zero, size: wrapper.frame.size))
     shadeView.backgroundColor = shadeColor
@@ -168,7 +218,7 @@ class OverlayAnimator: OverlaySpec{
     print("fromSnapshot.frame:", fromSnapshot.frame)
     print("targetSnapshot.frame:", toFrame)
         
-    UIView.animateKeyframes(withDuration: 5.4, delay: 0, animations: {
+    UIView.animateKeyframes(withDuration: 0.4, delay: 0, animations: {
       UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.3) {
                       self.shadeView.alpha = CGFloat(self.maxAlpha)
                 }
