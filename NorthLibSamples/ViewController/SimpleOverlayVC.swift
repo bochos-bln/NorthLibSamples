@@ -72,8 +72,8 @@ class SimpleOverlayVC: UIViewController {
     //    if let nc = self.navigationController {
     //      nc.pushViewController(child, animated: true)
     //    }
-    //    oa?.open(animated: true, fromBottom: true)
-    //    return
+//        oa?.open(animated: true, fromBottom: true)
+//        return
     child.view.frame = self.view.frame
     child.view.setNeedsLayout()
     child.view.layoutIfNeeded()
@@ -105,29 +105,45 @@ class SimpleOverlayVC: UIViewController {
 
 
 class ChildOverlayVC: UIViewController {
-  
+//  var stack = UIStackView()
   var image: UIImage?
-  public var imageView = UIImageView()
+//  var image: UIImage?{
+//    didSet{
+//      imageView.image
+//    }
+//  }
+  var imageView = UIImageView()
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+//    stack.alignment = .fill
+//    stack.axis = .vertical
+//    stack.distribution = .fill
+    imageView.layer.borderColor = UIColor.yellow.cgColor
+    imageView.layer.borderWidth = 2.0
     if let filePath = Bundle.main.path(forResource: "IMG_XS", ofType: "jpg") {
       image = UIImage(contentsOfFile: filePath)
     }
+
     imageView.clipsToBounds=true
     imageView.image = image
     imageView.contentMode = .scaleAspectFit
     self.view.addSubview(imageView)
-//    NorthLib.pin(imageView.centerX, to: self.view.centerX)
+//    stack.addArrangedSubview(imageView)
+    imageView.pinWidth(UIScreen.main.bounds.size.width).priority = UILayoutPriority(rawValue: 200)
+    NorthLib.pin(imageView.centerX, to: self.view.centerX)
     NorthLib.pin(imageView.centerY, to: self.view.centerY)
-//    NorthLib.pin(imageView, toSafe: self.view, dist: 0)
-    NorthLib.pin(imageView.left, to: self.view.left)
-    NorthLib.pin(imageView.right, to: self.view.right)
+//    NorthLib.pin(imageView.bottom, to: stack.bottom).priority = UILayoutPriority(rawValue: 200)
+//        NorthLib.pin(imageView.left, to: stack.left).priority = UILayoutPriority(rawValue: 200)
+//        NorthLib.pin(imageView.right, to: stack.right).priority = UILayoutPriority(rawValue: 200)
+//        NorthLib.pin(imageView.top, to: stack.top).priority = UILayoutPriority(rawValue: 200)
+//    NorthLib.pin(imageView, toSafe: self.view)
     
-    
-    imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-    self.view.setContentHuggingPriority(.defaultHigh, for: .vertical)
+    imageView.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 750), for: .vertical)
+    imageView.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 750), for: .horizontal)
+
+    imageView.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .vertical)
+    imageView.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
     
 //    self.hug
 //    olution is to increase the Hugging Priority of SuperView to High(750 or more) and decrease the Compression Resistance Priority of UIImageView to Low(250 or less). This will let constraint

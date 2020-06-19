@@ -160,14 +160,15 @@ class OverlayAnimator: OverlaySpec{
     wrapper.addSubview(targetSnapshot)
     
     ///Debug
-//    fromSnapshot.layer.borderColor = UIColor.red.cgColor
-//    fromSnapshot.layer.borderWidth = 2.0
+    fromSnapshot.layer.borderColor = UIColor.red.cgColor
+    fromSnapshot.layer.borderWidth = 2.0
     
     targetSnapshot.alpha = 0.0
     activeVC.view.addSubview(wrapper)
     print("fromSnapshot.frame:", fromSnapshot.frame)
+    print("targetSnapshot.frame:", toFrame)
         
-    UIView.animateKeyframes(withDuration: 0.4, delay: 0, animations: {
+    UIView.animateKeyframes(withDuration: 5.4, delay: 0, animations: {
       UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.3) {
                       self.shadeView.alpha = CGFloat(self.maxAlpha)
                 }
