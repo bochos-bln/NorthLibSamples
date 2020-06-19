@@ -96,6 +96,9 @@ class SimpleOverlayVC: UIViewController {
   //    }
       oa?.close(animated: true)
       
+//      if let nc = self.navigationController {
+//            nc.pushViewController(UIViewController(), animated: true)
+//          }
     }
   
   override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
