@@ -136,6 +136,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = ZoomableImageViewController()
       #elseif false //OPTION OverlaySpec with UICollectionVC with Photos
       window.rootViewController = ImageCollectionVC()
+      #elseif false //OPTION OverlaySpec with SimpleOverlayVC with NC
+      window.rootViewController = UINavigationController(rootViewController: SimpleOverlayVC())
       #elseif true //OPTION OverlaySpec with SimpleOverlayVC
       window.rootViewController = SimpleOverlayVC()
       #elseif false //OPTION 3:  using  UIViewController with Custom View: ZoomedImageView
