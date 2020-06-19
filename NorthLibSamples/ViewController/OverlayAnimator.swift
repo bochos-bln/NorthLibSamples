@@ -150,7 +150,7 @@ class OverlayAnimator: OverlaySpec{
     }
     
     wrapper = UIView(frame: activeVC.view.frame)
-    wrapper.backgroundColor = .black //ToDo otherwise looks ugly!
+//    wrapper.backgroundColor = .black //ToDo otherwise looks ugly!
     shadeView = UIView(frame: CGRect(origin: .zero, size: wrapper.frame.size))
     shadeView.backgroundColor = shadeColor
     self.shadeView.alpha = 0
@@ -160,21 +160,31 @@ class OverlayAnimator: OverlaySpec{
     wrapper.addSubview(targetSnapshot)
     
     ///Debug
-    fromSnapshot.layer.borderColor = UIColor.red.cgColor
-    fromSnapshot.layer.borderWidth = 2.0
+//    fromSnapshot.layer.borderColor = UIColor.red.cgColor
+//    fromSnapshot.layer.borderWidth = 2.0
     
     targetSnapshot.alpha = 0.0
     activeVC.view.addSubview(wrapper)
     print("fromSnapshot.frame:", fromSnapshot.frame)
-    UIView.animate(withDuration: 2.2, animations: {
-      fromSnapshot.frame = toFrame
-      fromSnapshot.alpha = 0.0
-      targetSnapshot.alpha = 1.0
-      self.shadeView.alpha = CGFloat(self.maxAlpha)
+        
+    UIView.animateKeyframes(withDuration: 0.4, delay: 0, animations: {
+      UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.3) {
+                      self.shadeView.alpha = CGFloat(self.maxAlpha)
+                }
+      UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.7) {
+                  fromSnapshot.frame = toFrame
+               }
+      
+      UIView.addKeyframe(withRelativeStartTime: 0.5, relativeDuration: 0.4) {
+                 fromSnapshot.alpha = 0.0
+               }
+      UIView.addKeyframe(withRelativeStartTime: 0.7, relativeDuration: 0.3) {
+                 targetSnapshot.alpha = 1.0
+               }
       
     }) { (success) in
       self.wrapper.addSubview(self.overlayVC.view)
-      self.wrapper.backgroundColor = .clear
+//      self.wrapper.backgroundColor = .clear
       fromSnapshot.removeFromSuperview()
       targetSnapshot.removeFromSuperview()
     }
