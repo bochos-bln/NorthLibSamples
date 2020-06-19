@@ -140,26 +140,29 @@ class OverlayAnimator: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRec
       targetSnapshot.removeFromSuperview()
     }
   }
-  var startY:CGFloat = 0.0
+  var panStart:CGPoint = .zero
   @objc func didPanWith(gestureRecognizer: UIPanGestureRecognizer) {
     if gestureRecognizer.state == .began {
-      startY = self.overlayVC.view.frame.origin.y
+      panStart = self.overlayVC.view.frame.origin
     }
     
 //    let anchorPoint = CGPoint(x: fromReferenceImageViewFrame.midX, y: fromReferenceImageViewFrame.midY)
     
     let translatedPoint = gestureRecognizer.translation(in: wrapper)
-    let verticalDelta : CGFloat = translatedPoint.y < 0 ? 0 : translatedPoint.y
-    self.overlayVC.view.frame.origin.y = verticalDelta
-    print("pan:", verticalDelta, (100-verticalDelta), gestureRecognizer.state.rawValue, startY, wrapper.frame )
-    wrapper.alpha = max(0,(100-verticalDelta))/100
+    self.overlayVC.view.frame.origin.y = translatedPoint.y > 0 ? translatedPoint.y : translatedPoint.y*0.4
+    self.overlayVC.view.frame.origin.x = translatedPoint.x*0.4
+    if translatedPoint.y > 0 {
+      print("pan:", translatedPoint.y, (100+translatedPoint.y), gestureRecognizer.state.rawValue, wrapper.frame )
+      wrapper.alpha = max(0,(100-translatedPoint.y))/100
+    }
+
     if gestureRecognizer.state == .ended {
       if wrapper.alpha < closeRatio {
         self.close(animated: false)
       }
       else {
         UIView.animate(seconds: 0.3) {
-          self.overlayVC.view.frame.origin.y = self.startY
+          self.overlayVC.view.frame.origin = self.panStart
           self.wrapper.alpha = 1.0
         }
       }
