@@ -68,6 +68,8 @@ extension OverlayAnimator{
   }
 }
 
+
+// MARK: - OverlayAnimator
 class OverlayAnimator: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerDelegate{
   
   var shadeView: UIView = UIView()
@@ -76,30 +78,24 @@ class OverlayAnimator: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRec
   
   var overlayVC: UIViewController
   var activeVC: UIViewController//LATER SELF!!
-  
-  
-  
   var overlaySize: CGSize?
-  
   var maxAlpha: Double = 1.0
-  
   var shadeColor: UIColor = .clear
-  
   var closeRatio: CGFloat = 0.5
-  
+  // MARK: - init
   required init(overlay: UIViewController, into active: UIViewController) {
     overlayVC = overlay
     activeVC = active
     super.init()
     overlayView.delegate = self
   }
-  
+  // MARK: - close
   func close(animated: Bool) {
     print("todo close")
     wrapper.removeFromSuperview()
   }
   
-  
+  // MARK: - open animated
   func open(animated: Bool, fromBottom: Bool) {
     guard let fromSnapshot = activeVC.view.snapshotView(afterScreenUpdates: true) else {
       print("cannot open due no snapshot is possible may TODo if non animated!")
@@ -158,7 +154,7 @@ class OverlayAnimator: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRec
     print("pan:", verticalDelta, (100-verticalDelta), gestureRecognizer.state.rawValue, startY, wrapper.frame )
     wrapper.alpha = max(0,(100-verticalDelta))/100
     if gestureRecognizer.state == .ended {
-      if wrapper.alpha < 0.5 {
+      if wrapper.alpha < closeRatio {
         self.close(animated: false)
       }
       else {
@@ -177,7 +173,7 @@ class OverlayAnimator: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRec
 //    fromVC.view.alpha = backgroundAlpha
     
   }
-  
+   // MARK: - open fromFrame
   func openAnimated(fromFrame: CGRect, toFrame: CGRect) {
     guard let fromSnapshot = activeVC.view.resizableSnapshotView(from: fromFrame, afterScreenUpdates: false, withCapInsets: .zero) else {
       print("cannot open due no fromsnapshot is possible may TODo if non animated!")
@@ -241,11 +237,11 @@ class OverlayAnimator: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRec
     }
   }
   
-
+   // MARK: - shrinkTo rect
   func shrinkTo(rect: CGRect) {
     print("todo shrinkTo rect")
   }
-  
+   // MARK: - shrinkTo targetView
   func shrinkTo(targetView: UIView) {
     print("todo shrinkTo view")
   }
