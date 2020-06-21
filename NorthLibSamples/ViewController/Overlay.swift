@@ -73,6 +73,7 @@ extension Overlay{
 class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerDelegate {
   private var openDuration: Double = 0.4 //usually 0.4-0.5
   private var closeDuration: Double = 0.25//
+  private var debug = false
   
   var shadeView: UIView?
   let overlayView: UIScrollView = UIScrollView()
@@ -82,7 +83,13 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
   var overlaySize: CGSize?
   var maxAlpha: Double = 0.8
   var shadeColor: UIColor = .black
-  var closeRatio: CGFloat = 0.5
+  var closeRatio: CGFloat = 0.5 {
+    didSet {
+      //Prevent math issues
+      if closeRatio > 1.0 { closeRatio = 1.0 }
+      if closeRatio < 0.1 { closeRatio = 0.1 }
+    }
+  }
   // MARK: - init
   required init(overlay: UIViewController, into active: UIViewController) {
     overlayVC = overlay
@@ -124,7 +131,8 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     shadeView?.backgroundColor = shadeColor
     shadeView!.alpha = 0.0
     activeVC.view.addSubview(shadeView!)
-    ///configure the overlay vc
+    ///configure the overlay vc (TBD::may also create a new one?!)
+    overlayView.alpha = 1.0
     overlayView.frame = activeVC.view.frame
     overlayView.clipsToBounds = true
     overlayView.addSubview(overlayVC.view)
@@ -195,26 +203,23 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     self.overlayVC.view.frame.origin.x = translatedPoint.x*0.4
     let p = translatedPoint.y/(overlayView.frame.size.height-panStartY)
     if translatedPoint.y > 0 {
-      self.shadeView?.alpha = max(0, 1-p)
+      self.shadeView?.alpha = max(0, min(1-p, CGFloat(self.maxAlpha)))
     }
 
     if gestureRecognizer.state == .ended {
-      if self.shadeView?.alpha ?? 1.0 < closeRatio {
+      if self.shadeView?.alpha ?? 1.0 < (1 - closeRatio) {
         self.close(animated: true, toBottom: true)
       }
       else {
         UIView.animate(seconds: closeDuration) {
           self.overlayVC.view.frame.origin = .zero
-          self.shadeView?.alpha = 1.0
+          self.shadeView?.alpha = CGFloat(self.maxAlpha)
         }
       }
       
     }
   }
     
-
-
-  
    // MARK: - open fromFrame
   func openAnimated(fromFrame: CGRect, toFrame: CGRect) {
     guard let fromSnapshot = activeVC.view.resizableSnapshotView(from: fromFrame, afterScreenUpdates: false, withCapInsets: .zero) else {
@@ -229,7 +234,7 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     addToActiveVC()
     targetSnapshot.alpha = 0.0
 
-    if false /*debug*/{
+    if debug {
       overlayView.layer.borderColor = UIColor.green.cgColor
       overlayView.layer.borderWidth = 2.0
       
@@ -238,11 +243,15 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
       
       targetSnapshot.layer.borderColor = UIColor.blue.cgColor
       targetSnapshot.layer.borderWidth = 2.0
+      
+      self.overlayVC.view.layer.borderColor = UIColor.orange.cgColor
+      self.overlayVC.view.layer.borderWidth = 2.0
 
       print("fromSnapshot.frame:", fromSnapshot.frame)
       print("targetSnapshot.frame:", toFrame)
-
     }
+
+
     
     fromSnapshot.layer.masksToBounds = true
     fromSnapshot.frame = fromFrame
@@ -274,10 +283,52 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
   
    // MARK: - shrinkTo rect
   func shrinkTo(rect: CGRect) {
-    print("todo shrinkTo rect")
+    close(fromRect: overlayVC.view.frame, toRect: rect)
   }
    // MARK: - shrinkTo targetView
   func shrinkTo(targetView: UIView) {
-    print("todo shrinkTo view")
+    if !targetView.isDescendant(of: activeVC.view) {
+      self.close(animated: true)
+      return;
+    }
+    close(fromRect: overlayVC.view.frame, toRect: activeVC.view.convert(targetView.frame, from: targetView))
+  }
+  
+   // MARK: - close fromRect toRect
+  func close(fromRect: CGRect, toRect: CGRect) {
+    guard let overlaySnapshot = overlayVC.view.resizableSnapshotView(from: fromRect, afterScreenUpdates: false, withCapInsets: .zero) else {
+      self.close(animated: true)
+      return
+    }
+    
+    if debug {
+      print("todo close fromRect", fromRect, "toRect", toRect)
+      overlaySnapshot.layer.borderColor = UIColor.magenta.cgColor
+      overlaySnapshot.layer.borderWidth = 2.0
+    }
+    
+    overlaySnapshot.frame = fromRect
+    overlayView.addSubview(overlaySnapshot)
+
+    UIView.animateKeyframes(withDuration: closeDuration, delay: 0, animations: {
+      UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.4) {
+        self.overlayVC.view.alpha = 0.0
+      }
+      UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.7) {
+        overlaySnapshot.frame = toRect
+        
+      }
+      UIView.addKeyframe(withRelativeStartTime: 0.7, relativeDuration: 0.3) {
+        overlaySnapshot.alpha = 0.0
+      }
+      UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 1) {
+        self.shadeView?.alpha = 0.0
+      }
+    }) { (success) in
+      self.removeFromActiveVC()
+      self.overlayView.alpha = 1.0
+      self.overlayVC.view.alpha = 1.0
+    }
+    
   }
 }

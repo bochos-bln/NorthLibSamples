@@ -59,7 +59,7 @@ class SimpleOverlayVC: UIViewController {
   
     
     oa = Overlay(overlay: child, into: self)
-    
+    oa?.closeRatio = 0.5
     oa?.shadeColor = .black
     oa?.maxAlpha = 0.99
   }
@@ -80,21 +80,27 @@ class SimpleOverlayVC: UIViewController {
         //ensure imageviews sourceframe is correct usally the image height is huge...
     
     if sender.view == imageView {
-       oa?.openAnimated(fromFrame: imageView.frame, toFrame: child.imageView.frame)
+      openedFromRect = imageView.frame
+      oa?.openAnimated(fromFrame: openedFromRect, toFrame: child.imageView.frame)
+      
 //      oa?.open(animated: true, fromBottom: false)
     }
     else if sender.view == imageView2 {
-       oa?.openAnimated(fromFrame: imageView2.frame, toFrame: child.imageView.frame)
+       openedFromRect = imageView2.frame
+       oa?.openAnimated(fromFrame: openedFromRect, toFrame: child.imageView.frame)
 //      oa?.open(animated: true, fromBottom: true)
     }
   }
+  
+  var openedFromRect = CGRect.zero
   
     @objc func handleCloseTap(sender: UITapGestureRecognizer){
   //    if let nc = self.navigationController {
   //      nc.pushViewController(ChildOverlayVC(), animated: true)
   //    }
-      oa?.close(animated: true)
-      
+//      oa?.close(animated: false)
+//      oa?.shrinkTo(rect: imageView.frame)
+      oa?.close(fromRect: child.imageView.frame, toRect: openedFromRect)
 //      if let nc = self.navigationController {
 //            nc.pushViewController(UIViewController(), animated: true)
 //          }
@@ -121,8 +127,8 @@ class ChildOverlayVC: UIViewController {
 //    stack.alignment = .fill
 //    stack.axis = .vertical
 //    stack.distribution = .fill
-    imageView.layer.borderColor = UIColor.yellow.cgColor
-    imageView.layer.borderWidth = 2.0
+//    imageView.layer.borderColor = UIColor.yellow.cgColor
+//    imageView.layer.borderWidth = 2.0
     if let filePath = Bundle.main.path(forResource: "IMG_XS", ofType: "jpg") {
       image = UIImage(contentsOfFile: filePath)
     }
