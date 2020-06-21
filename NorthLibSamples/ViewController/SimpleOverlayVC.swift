@@ -80,12 +80,12 @@ class SimpleOverlayVC: UIViewController {
         //ensure imageviews sourceframe is correct usally the image height is huge...
     
     if sender.view == imageView {
-//       oa?.openAnimated(fromFrame: imageView.frame, toFrame: child.imageView.frame)
-      oa?.open(animated: true, fromBottom: false)
+       oa?.openAnimated(fromFrame: imageView.frame, toFrame: child.imageView.frame)
+//      oa?.open(animated: true, fromBottom: false)
     }
     else if sender.view == imageView2 {
-//       oa?.openAnimated(fromFrame: imageView2.frame, toFrame: child.imageView.frame)
-      oa?.open(animated: true, fromBottom: true)
+       oa?.openAnimated(fromFrame: imageView2.frame, toFrame: child.imageView.frame)
+//      oa?.open(animated: true, fromBottom: true)
     }
   }
   

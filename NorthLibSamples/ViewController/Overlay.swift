@@ -71,8 +71,8 @@ extension Overlay{
 
 // MARK: - OverlayAnimator
 class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerDelegate {
-  private var closeDuration: Double = 0.4 //usually 0.4-0.5
-  private var openDuration: Double = 0.25//
+  private var openDuration: Double = 0.4 //usually 0.4-0.5
+  private var closeDuration: Double = 0.25//
   
   var shadeView: UIView?
   let overlayView: UIScrollView = UIScrollView()
@@ -143,21 +143,22 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     overlayView.removeFromSuperview()
   }
   
+  private func showWithoutAnimation(){
+    addToActiveVC()
+    self.overlayVC.view.isHidden = false
+    shadeView?.alpha = CGFloat(self.maxAlpha)
+  }
+  
   // MARK: - open animated
   func open(animated: Bool, fromBottom: Bool) {
     guard animated,
-      let targetSnapshot = overlayVC.view.snapshotView(afterScreenUpdates: true) else {
-      addToActiveVC()
-      self.overlayVC.view.isHidden = false
-      shadeView?.alpha = CGFloat(self.maxAlpha)
-      return
+      let targetSnapshot
+      = overlayVC.view.snapshotView(afterScreenUpdates: true) else {
+        showWithoutAnimation()
+        return
     }
+
     addToActiveVC()
-    guard let shadeView = shadeView else {
-      self.overlayVC.view.isHidden = false
-      return
-    }
-  
     targetSnapshot.alpha = 0.0
    
     if fromBottom {
@@ -167,14 +168,12 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     
     overlayVC.view.isHidden = true
     overlayView.addSubview(targetSnapshot)
-        shadeView.alpha = 0.0
-//    overlayView.layer.borderColor = UIColor.green.cgColor
-//    overlayView.layer.borderWidth = 2.0
+    shadeView?.alpha = 0.0
     UIView.animate(withDuration: openDuration, animations: {
       if fromBottom {
         targetSnapshot.frame.origin.y = 0
       }
-      shadeView.alpha = CGFloat(self.maxAlpha)
+      self.shadeView?.alpha = CGFloat(self.maxAlpha)
       targetSnapshot.alpha = 1.0
     }) { (success) in
       self.overlayVC.view.isHidden = false
@@ -218,66 +217,59 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
   
    // MARK: - open fromFrame
   func openAnimated(fromFrame: CGRect, toFrame: CGRect) {
-//    guard let fromSnapshot = activeVC.view.resizableSnapshotView(from: fromFrame, afterScreenUpdates: false, withCapInsets: .zero) else {
-//      print("cannot open due no fromsnapshot is possible may TODo if non animated!")
-//      return
-//    }
-//    guard let targetSnapshot = overlayVC.view.snapshotView(afterScreenUpdates: true) else {
-//       print("cannot open due target snapshot is possible may TODo if non animated!")
-//       return
-//     }
-////    activeVC.view.isHidden = true
-//
-//
-//    fromSnapshot.layer.masksToBounds = true
-//    fromSnapshot.frame = fromFrame
-//
-//
-//
-//    wrapper = UIView(frame: activeVC.view.frame)
-//    let panGestureRecognizer = UIPanGestureRecognizer(target: self,
-//                                                      action: #selector(didPanWith(gestureRecognizer:)))
-////    panGestureRecognizer.delegate = self
-//    wrapper.addGestureRecognizer(panGestureRecognizer)
-//
-////    wrapper.backgroundColor = .black //ToDo otherwise looks ugly!
-//    shadeView = UIView(frame: CGRect(origin: .zero, size: wrapper.frame.size))
-//    shadeView.backgroundColor = shadeColor
-//    self.shadeView.alpha = 0
-//
-//    wrapper.addSubview(shadeView)
-//    wrapper.addSubview(fromSnapshot)
-//    wrapper.addSubview(targetSnapshot)
-//
-//    ///Debug
-//    fromSnapshot.layer.borderColor = UIColor.red.cgColor
-//    fromSnapshot.layer.borderWidth = 2.0
-//
-//    targetSnapshot.alpha = 0.0
-//    print("fromSnapshot.frame:", fromSnapshot.frame)
-//    print("targetSnapshot.frame:", toFrame)
-//
-//    UIView.animateKeyframes(withDuration: 4.4, delay: 0, animations: {
-//      UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.3) {
-//                      self.shadeView.alpha = CGFloat(self.maxAlpha)
-//                }
-//      UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.7) {
-//                  fromSnapshot.frame = toFrame
-//               }
-//
-//      UIView.addKeyframe(withRelativeStartTime: 0.5, relativeDuration: 0.4) {
-//                 fromSnapshot.alpha = 0.0
-//               }
-//      UIView.addKeyframe(withRelativeStartTime: 0.7, relativeDuration: 0.3) {
-//                 targetSnapshot.alpha = 1.0
-//               }
-//
-//    }) { (success) in
-//      self.wrapper.addSubview(self.overlayVC.view)
-////      self.wrapper.backgroundColor = .clear
-//      fromSnapshot.removeFromSuperview()
-//      targetSnapshot.removeFromSuperview()
-//    }
+    guard let fromSnapshot = activeVC.view.resizableSnapshotView(from: fromFrame, afterScreenUpdates: false, withCapInsets: .zero) else {
+      showWithoutAnimation()
+      return
+    }
+    guard let targetSnapshot = overlayVC.view.snapshotView(afterScreenUpdates: true) else {
+       showWithoutAnimation()
+       return
+     }
+
+    addToActiveVC()
+    targetSnapshot.alpha = 0.0
+
+    if false /*debug*/{
+      overlayView.layer.borderColor = UIColor.green.cgColor
+      overlayView.layer.borderWidth = 2.0
+      
+      fromSnapshot.layer.borderColor = UIColor.red.cgColor
+      fromSnapshot.layer.borderWidth = 2.0
+      
+      targetSnapshot.layer.borderColor = UIColor.blue.cgColor
+      targetSnapshot.layer.borderWidth = 2.0
+
+      print("fromSnapshot.frame:", fromSnapshot.frame)
+      print("targetSnapshot.frame:", toFrame)
+
+    }
+    
+    fromSnapshot.layer.masksToBounds = true
+    fromSnapshot.frame = fromFrame
+
+    overlayView.addSubview(fromSnapshot)
+    overlayView.addSubview(targetSnapshot)
+    
+    UIView.animateKeyframes(withDuration: openDuration, delay: 0, animations: {
+      UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.3) {
+                      self.shadeView?.alpha = CGFloat(self.maxAlpha)
+                }
+      UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.7) {
+                  fromSnapshot.frame = toFrame
+               }
+
+      UIView.addKeyframe(withRelativeStartTime: 0.5, relativeDuration: 0.4) {
+                 fromSnapshot.alpha = 0.0
+               }
+      UIView.addKeyframe(withRelativeStartTime: 0.7, relativeDuration: 0.3) {
+                 targetSnapshot.alpha = 1.0
+               }
+
+    }) { (success) in
+      self.overlayVC.view.isHidden = false
+      targetSnapshot.removeFromSuperview()
+      targetSnapshot.removeFromSuperview()
+    }
   }
   
    // MARK: - shrinkTo rect
