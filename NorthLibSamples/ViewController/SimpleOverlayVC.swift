@@ -58,10 +58,7 @@ class SimpleOverlayVC: UIViewController {
     
   
     
-//    oa = OverlayAnimator(overlayView: child.view, shadeView: self.view)
     oa = Overlay(overlay: child, into: self)
-    oa?.shadeColor = .purple
-    oa?.maxAlpha = 0.8
     
     oa?.shadeColor = .black
     oa?.maxAlpha = 0.99
@@ -83,10 +80,12 @@ class SimpleOverlayVC: UIViewController {
         //ensure imageviews sourceframe is correct usally the image height is huge...
     
     if sender.view == imageView {
-       oa?.openAnimated(fromFrame: imageView.frame, toFrame: child.imageView.frame)
+//       oa?.openAnimated(fromFrame: imageView.frame, toFrame: child.imageView.frame)
+      oa?.open(animated: true, fromBottom: false)
     }
     else if sender.view == imageView2 {
-       oa?.openAnimated(fromFrame: imageView2.frame, toFrame: child.imageView.frame)
+//       oa?.openAnimated(fromFrame: imageView2.frame, toFrame: child.imageView.frame)
+      oa?.open(animated: true, fromBottom: true)
     }
   }
   
