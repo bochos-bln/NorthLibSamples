@@ -36,25 +36,25 @@ recognizers being active in 'overlay'.
  X Calling VC's
  O add ZoomableImageVC for Pinch Gesture
  O OverlaySpec
-    O=> var shadeView: UIView = UIView()
+    X=> var shadeView: UIView = UIView()
     X=> var overlayView: UIView = UIView()
     X=> var overlayVC: UIViewController
     X=> var activeVC: UIViewController//LATER SELF!!
     ?=> var overlaySize: CGSize?
-    ?=> var maxAlpha: Double = 1.0
-    O=> var shadeColor: UIColor = UIColor.red
-    O=> var closeRatio: CGFloat = 0.5
+    X=> var maxAlpha: Double = 1.0
+    X=> var shadeColor: UIColor = UIColor.red
+    X=> var closeRatio: CGFloat = 0.5
  X Konzept => ViewAnimation nicht via UIViewControllerTransitionDelegate
          => da reine View Animationen abgesprochen waren & höhere Komplexität
  X implement Appear from Bottom
  X implement appear from different View (Appear Animated needs to know which View)
     X=> shrink parent to new & fade look ugly!
     X=> passed the view for the moment
-    O=> view Frame in Source FRame
- O implement Pan to close
+    X=> view Frame in Source FRame
+ X implement Pan to close
     O=>wrapper holds a scrollview
     O=> scrollview contain overlayview
-    O=> scrollview handles pan
+    X=> scrollview handles pan
     O=> scrollview handles pinch
  O pinch to Close
 ?O next/upcomming
@@ -100,6 +100,10 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     let panGestureRecognizer = UIPanGestureRecognizer(target: self,
                                                       action: #selector(didPanWith(gestureRecognizer:)))
     overlayView.addGestureRecognizer(panGestureRecognizer)
+    
+    let pinchGestureRecognizer = UIPinchGestureRecognizer(target: self,
+                                                      action: #selector(didPinchWith(gestureRecognizer:)))
+    overlayView.addGestureRecognizer(pinchGestureRecognizer)
   }
   // MARK: - close
   func close(animated: Bool) {
@@ -191,7 +195,7 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
   
   // MARK: - didPanWith
   var panStartY:CGFloat = 0.0
-  @objc func didPanWith(gestureRecognizer: UIPanGestureRecognizer) {
+  @IBAction func didPanWith(gestureRecognizer: UIPanGestureRecognizer) {
     let translatedPoint = gestureRecognizer.translation(in: overlayView)
     
     if gestureRecognizer.state == .began {
@@ -219,6 +223,34 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
       
     }
   }
+  
+  var pinchStartTransform: CGAffineTransform?
+  @IBAction func didPinchWith(gestureRecognizer: UIPinchGestureRecognizer) {
+    guard gestureRecognizer.view != nil else { return }
+    
+    if gestureRecognizer.state == .began {
+      pinchStartTransform = gestureRecognizer.view?.transform
+    }
+    
+    if gestureRecognizer.state == .began || gestureRecognizer.state == .changed {
+      gestureRecognizer.view?.transform = (gestureRecognizer.view?.transform.scaledBy(x: gestureRecognizer.scale, y: gestureRecognizer.scale))!
+      gestureRecognizer.scale = 1.0
+      
+      
+    }
+    else if gestureRecognizer.state == .ended {
+      print("pinchStartTransform:", pinchStartTransform, "pinchEndTransform", gestureRecognizer.view?.transform)
+      if gestureRecognizer.view?.transform.a ?? 1.0 < closeRatio {
+        close(animated: true, toBottom: true)
+      }
+      else{
+        UIView.animate(seconds: closeDuration) {
+          gestureRecognizer.view?.transform = self.pinchStartTransform!
+        }
+      }
+    }
+  }
+  
     
    // MARK: - open fromFrame
   func openAnimated(fromFrame: CGRect, toFrame: CGRect) {
