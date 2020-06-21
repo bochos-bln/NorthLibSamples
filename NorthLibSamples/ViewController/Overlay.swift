@@ -74,9 +74,9 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
   private var openDuration: Double = 0.4 //usually 0.4-0.5
   private var closeDuration: Double = 0.25//
   private var debug = false
-  
+    
   var shadeView: UIView?
-  let overlayView: UIScrollView = UIScrollView()
+  var overlayView: UIScrollView?
   
   var overlayVC: UIViewController
   var activeVC: UIViewController//LATER SELF!!
@@ -95,15 +95,6 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     overlayVC = overlay
     activeVC = active
     super.init()
-    overlayView.delegate = self
-    /// add the pan
-    let panGestureRecognizer = UIPanGestureRecognizer(target: self,
-                                                      action: #selector(didPanWith(gestureRecognizer:)))
-    overlayView.addGestureRecognizer(panGestureRecognizer)
-    
-    let pinchGestureRecognizer = UIPinchGestureRecognizer(target: self,
-                                                      action: #selector(didPinchWith(gestureRecognizer:)))
-    overlayView.addGestureRecognizer(pinchGestureRecognizer)
   }
   // MARK: - close
   func close(animated: Bool) {
@@ -117,12 +108,12 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     }
     UIView.animate(withDuration: closeDuration, animations: {
       self.shadeView?.alpha = 0
-      self.overlayView.alpha = 0
+      self.overlayView?.alpha = 0
       self.overlayVC.view.frame.origin.y
         = CGFloat(self.shadeView?.frame.size.height ?? 0.0)
     }, completion: { _ in
       self.removeFromActiveVC()
-      self.overlayView.alpha = 1
+      self.overlayView?.alpha = 1
     })
   }
   
@@ -136,10 +127,28 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     shadeView!.alpha = 0.0
     activeVC.view.addSubview(shadeView!)
     ///configure the overlay vc (TBD::may also create a new one?!)
+    let overlayView = UIScrollView()
+    self.overlayView = overlayView
+    overlayView.delegate = self
+    /// add the pan
+    
+
+    let pinchGestureRecognizer
+      = UIPinchGestureRecognizer(target: self,
+                                 action: #selector(didPinchWith(gestureRecognizer:)))
+    let panGestureRecognizer
+      = UIPanGestureRecognizer(target: self,
+                               action: #selector(didPanWith(gestureRecognizer:)))
+
+    overlayView.addGestureRecognizer(panGestureRecognizer)
+    overlayView.addGestureRecognizer(pinchGestureRecognizer)
+    
+    
     overlayView.alpha = 1.0
     overlayView.frame = activeVC.view.frame
     overlayView.clipsToBounds = true
     overlayView.addSubview(overlayVC.view)
+    
     ///configure the overlay vc and add as child vc to active vc
     overlayVC.view.frame = activeVC.view.frame
     overlayVC.willMove(toParent: activeVC)
@@ -152,7 +161,8 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     shadeView?.removeFromSuperview()
     shadeView = nil
     overlayVC.view.removeFromSuperview()
-    overlayView.removeFromSuperview()
+    overlayView?.removeFromSuperview()
+    overlayView = nil
   }
   
   private func showWithoutAnimation(){
@@ -179,7 +189,7 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     }
     
     overlayVC.view.isHidden = true
-    overlayView.addSubview(targetSnapshot)
+    overlayView?.addSubview(targetSnapshot)
     shadeView?.alpha = 0.0
     UIView.animate(withDuration: openDuration, animations: {
       if fromBottom {
@@ -205,12 +215,14 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
    
     self.overlayVC.view.frame.origin.y = translatedPoint.y > 0 ? translatedPoint.y : translatedPoint.y*0.4
     self.overlayVC.view.frame.origin.x = translatedPoint.x*0.4
-    let p = translatedPoint.y/(overlayView.frame.size.height-panStartY)
+    let p = translatedPoint.y/(overlayView?.frame.size.height ?? 0-panStartY)
     if translatedPoint.y > 0 {
       self.shadeView?.alpha = max(0, min(1-p, CGFloat(self.maxAlpha)))
+       print("ended... ",self.shadeView?.alpha, (1 - p), p, self.maxAlpha)
     }
 
     if gestureRecognizer.state == .ended {
+      print("ended... ",self.shadeView?.alpha, (1 - p), p)
       if self.shadeView?.alpha ?? 1.0 < (1 - closeRatio) {
         self.close(animated: true, toBottom: true)
       }
@@ -220,10 +232,10 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
           self.shadeView?.alpha = CGFloat(self.maxAlpha)
         }
       }
-      
     }
   }
   
+  // MARK: - didPinchWith
   var pinchStartTransform: CGAffineTransform?
   @IBAction func didPinchWith(gestureRecognizer: UIPinchGestureRecognizer) {
     guard gestureRecognizer.view != nil else { return }
@@ -239,7 +251,6 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
       
     }
     else if gestureRecognizer.state == .ended {
-      print("pinchStartTransform:", pinchStartTransform, "pinchEndTransform", gestureRecognizer.view?.transform)
       if gestureRecognizer.view?.transform.a ?? 1.0 < closeRatio {
         close(animated: true, toBottom: true)
       }
@@ -250,7 +261,6 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
       }
     }
   }
-  
     
    // MARK: - open fromFrame
   func openAnimated(fromFrame: CGRect, toFrame: CGRect) {
@@ -267,8 +277,8 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     targetSnapshot.alpha = 0.0
 
     if debug {
-      overlayView.layer.borderColor = UIColor.green.cgColor
-      overlayView.layer.borderWidth = 2.0
+      overlayView?.layer.borderColor = UIColor.green.cgColor
+      overlayView?.layer.borderWidth = 2.0
       
       fromSnapshot.layer.borderColor = UIColor.red.cgColor
       fromSnapshot.layer.borderWidth = 2.0
@@ -288,8 +298,8 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     fromSnapshot.layer.masksToBounds = true
     fromSnapshot.frame = fromFrame
 
-    overlayView.addSubview(fromSnapshot)
-    overlayView.addSubview(targetSnapshot)
+    overlayView?.addSubview(fromSnapshot)
+    overlayView?.addSubview(targetSnapshot)
     
     UIView.animateKeyframes(withDuration: openDuration, delay: 0, animations: {
       UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.3) {
@@ -340,7 +350,7 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     }
     
     overlaySnapshot.frame = fromRect
-    overlayView.addSubview(overlaySnapshot)
+    overlayView?.addSubview(overlaySnapshot)
 
     UIView.animateKeyframes(withDuration: closeDuration, delay: 0, animations: {
       UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.4) {
@@ -358,7 +368,7 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
       }
     }) { (success) in
       self.removeFromActiveVC()
-      self.overlayView.alpha = 1.0
+      self.overlayView?.alpha = 1.0
       self.overlayVC.view.alpha = 1.0
     }
     
