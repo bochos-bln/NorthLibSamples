@@ -26,7 +26,7 @@ class SimpleOverlayVC: UIViewController {
   var imageView = UIImageView()
   var imageView2 = UIImageView(frame: CGRect(x: 10, y: 10, width: 180, height: 120))
   var child = ChildOverlayVC()
-  var oa: OverlayAnimator?
+  var oa: Overlay?
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -59,7 +59,7 @@ class SimpleOverlayVC: UIViewController {
   
     
 //    oa = OverlayAnimator(overlayView: child.view, shadeView: self.view)
-    oa = OverlayAnimator(overlay: child, into: self)
+    oa = Overlay(overlay: child, into: self)
     oa?.shadeColor = .purple
     oa?.maxAlpha = 0.8
     

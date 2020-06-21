@@ -11,7 +11,7 @@ import UIKit
 import NorthLib
 class ImageCollectionVC: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
   
-  var oa: OverlayAnimator?
+  var oa: Overlay?
   var child = ChildOverlayVC()
   
   let reuseIdentifier = "imagecell" // also enter this string as the cell identifier in the storyboard
@@ -36,7 +36,7 @@ class ImageCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
     self.view.addSubview(collectionview)
     NorthLib.pin(collectionview, toSafe: self.view)
     
-    oa = OverlayAnimator(overlay: child, into: self)
+    oa = Overlay(overlay: child, into: self)
     oa?.shadeColor = .black
     oa?.maxAlpha = 0.99
     child.imageView.addTap(self, action: #selector(handleCloseTap))

@@ -62,7 +62,7 @@ recognizers being active in 'overlay'.
  
  */
 // MARK: - UIScrollViewDelegate
-extension OverlayAnimator{
+extension Overlay{
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
     print("Scrolling")
   }
@@ -70,7 +70,7 @@ extension OverlayAnimator{
 
 
 // MARK: - OverlayAnimator
-class OverlayAnimator: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerDelegate{
+class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerDelegate{
   
   var shadeView: UIView = UIView()
   var overlayView: UIScrollView = UIScrollView()
