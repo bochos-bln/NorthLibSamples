@@ -328,6 +328,10 @@ class Overlay: NSObject, OverlaySpec {
   
    // MARK: - shrinkTo rect
   func shrinkTo(rect: CGRect) {
+     /** TBD OVERLAY SIZE **/
+//    if let fromRect = overlaySize TBD {
+//          close(fromRect: fromRect, toRect: rect)
+//    }
     close(fromRect: overlayVC.view.frame, toRect: rect)
   }
    // MARK: - shrinkTo targetView
@@ -336,6 +340,11 @@ class Overlay: NSObject, OverlaySpec {
       self.close(animated: true)
       return;
     }
+    /** TBD OVERLAY SIZE **/
+    //    if let fromRect = overlaySize TBD {
+    //          close(fromRect: fromRect, toRect: rect)
+    //    }
+    
     close(fromRect: overlayVC.view.frame, toRect: activeVC.view.convert(targetView.frame, from: targetView))
   }
   
