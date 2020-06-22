@@ -120,7 +120,7 @@ class Overlay: NSObject, OverlaySpec {
     shadeView!.alpha = 0.0
     activeVC.view.addSubview(shadeView!)
     ///configure the overlay vc (TBD::may also create a new one?!)
-    let overlayView = UIScrollView()
+    let overlayView = UIView()
     self.overlayView = overlayView
     /// add the pan
     
