@@ -56,7 +56,7 @@ class SimpleOverlayVC: UIViewController {
     imageView2.addTap(self, action: #selector(handleTap))
     child.imageView.addTap(self, action: #selector(handleCloseTap))
     
-    if true /*USE ImageCollectionVC DEMO */{
+    if false /*USE ImageCollectionVC DEMO */{
       
 
       icVc.images = [
@@ -184,7 +184,7 @@ class ChildOverlayVC: UIViewController {
 //    stack.distribution = .fill
 //    imageView.layer.borderColor = UIColor.yellow.cgColor
 //    imageView.layer.borderWidth = 2.0
-    if let filePath = Bundle.main.path(forResource: "IMG_XS", ofType: "jpg") {
+    if let filePath = Bundle.main.path(forResource: "IMG_XL", ofType: "jpg") {
       image = UIImage(contentsOfFile: filePath)
     }
 
@@ -192,21 +192,25 @@ class ChildOverlayVC: UIViewController {
     imageView.image = image
     imageView.contentMode = .scaleAspectFit
     self.view.addSubview(imageView)
-//    stack.addArrangedSubview(imageView)
     imageView.pinWidth(UIScreen.main.bounds.size.width).priority = UILayoutPriority(rawValue: 200)
     NorthLib.pin(imageView.centerX, to: self.view.centerX)
     NorthLib.pin(imageView.centerY, to: self.view.centerY)
+    
+    guard let img = image else  {return    }
+    let width = min(UIScreen.main.bounds.size.width, img.size.width)
+    imageView.pinWidth(width)
+    imageView.pinHeight(width*img.size.height/img.size.width)
 //    NorthLib.pin(imageView.bottom, to: stack.bottom).priority = UILayoutPriority(rawValue: 200)
 //        NorthLib.pin(imageView.left, to: stack.left).priority = UILayoutPriority(rawValue: 200)
 //        NorthLib.pin(imageView.right, to: stack.right).priority = UILayoutPriority(rawValue: 200)
 //        NorthLib.pin(imageView.top, to: stack.top).priority = UILayoutPriority(rawValue: 200)
 //    NorthLib.pin(imageView, toSafe: self.view)
     
-    imageView.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 750), for: .vertical)
-    imageView.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 750), for: .horizontal)
-
-    imageView.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .vertical)
-    imageView.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
+//    imageView.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 750), for: .vertical)
+//    imageView.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 750), for: .horizontal)
+//
+//    imageView.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .vertical)
+//    imageView.setContentHuggingPriority(UILayoutPriority(rawValue: 251), for: .horizontal)
     
 //    self.hug
 //    olution is to increase the Hugging Priority of SuperView to High(750 or more) and decrease the Compression Resistance Priority of UIImageView to Low(250 or less). This will let constraint
