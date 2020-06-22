@@ -61,22 +61,15 @@ recognizers being active in 'overlay'.
  
  
  */
-// MARK: - UIScrollViewDelegate
-extension Overlay{
-  func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    print("Scrolling")
-  }
-}
-
 
 // MARK: - OverlayAnimator
-class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerDelegate {
+class Overlay: NSObject, OverlaySpec {
   private var openDuration: Double = 0.4 //usually 0.4-0.5
   private var closeDuration: Double = 0.25//
   private var debug = false
     
   var shadeView: UIView?
-  var overlayView: UIScrollView?
+  var overlayView: UIView?
   
   var overlayVC: UIViewController
   var activeVC: UIViewController//LATER SELF!!
@@ -129,7 +122,6 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     ///configure the overlay vc (TBD::may also create a new one?!)
     let overlayView = UIScrollView()
     self.overlayView = overlayView
-    overlayView.delegate = self
     /// add the pan
     
 
@@ -218,11 +210,11 @@ class Overlay: NSObject, OverlaySpec, UIScrollViewDelegate, UIGestureRecognizerD
     let p = translatedPoint.y/(overlayView?.frame.size.height ?? 0-panStartY)
     if translatedPoint.y > 0 {
       self.shadeView?.alpha = max(0, min(1-p, CGFloat(self.maxAlpha)))
-       print("ended... ",self.shadeView?.alpha, (1 - p), p, self.maxAlpha)
+      debug ? print("ended... ",self.shadeView?.alpha as Any, (1 - p), p, self.maxAlpha) : ()
     }
 
     if gestureRecognizer.state == .ended {
-      print("ended... ",self.shadeView?.alpha, (1 - p), p)
+      debug ? print("ended... ",self.shadeView?.alpha as Any, (1 - p), p) : ()
       if self.shadeView?.alpha ?? 1.0 < (1 - closeRatio) {
         self.close(animated: true, toBottom: true)
       }
