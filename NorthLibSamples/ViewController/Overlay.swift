@@ -210,12 +210,10 @@ class Overlay: NSObject, OverlaySpec {
     let p = translatedPoint.y/(overlayView?.frame.size.height ?? 0-panStartY)
     if translatedPoint.y > 0 {
       self.shadeView?.alpha = max(0, min(1-p, CGFloat(self.maxAlpha)))
-      debug ? print("ended... ",self.shadeView?.alpha as Any, (1 - p), p, self.maxAlpha) : ()
     }
 
     if gestureRecognizer.state == .ended {
-      debug ? print("ended... ",self.shadeView?.alpha as Any, (1 - p), p) : ()
-      if self.shadeView?.alpha ?? 1.0 < (1 - closeRatio) {
+      if 2*p > closeRatio {
         self.close(animated: true, toBottom: true)
       }
       else {
