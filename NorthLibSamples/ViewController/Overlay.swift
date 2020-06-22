@@ -41,6 +41,9 @@ recognizers being active in 'overlay'.
     X=> var overlayVC: UIViewController
     X=> var activeVC: UIViewController//LATER SELF!!
     ?=> var overlaySize: CGSize?
+      ? pinch & zoom & pan only in overlayView or may also in a wrapper over activeVC.view
+      => another Wrapper needed
+      O adjust Animations
     X=> var maxAlpha: Double = 1.0
     X=> var shadeColor: UIColor = UIColor.red
     X=> var closeRatio: CGFloat = 0.5
@@ -52,10 +55,10 @@ recognizers being active in 'overlay'.
     X=> passed the view for the moment
     X=> view Frame in Source FRame
  X implement Pan to close
-    O=>wrapper holds a scrollview
-    O=> scrollview contain overlayview
-    X=> scrollview handles pan
-    O=> scrollview handles pinch
+    X=>overlayview as UIView
+    X=> activeVC.view contain overlayview
+    X=> overlayview handles pan
+    X=> overlayview handles pinch
  O pinch to Close
 ?O next/upcomming
  
@@ -137,7 +140,12 @@ class Overlay: NSObject, OverlaySpec {
     
     
     overlayView.alpha = 1.0
-    overlayView.frame = activeVC.view.frame
+//    if let size = overlaySize {
+//      overlayView.pinSize(size)
+//    }else{
+      overlayView.frame = activeVC.view.frame
+//
+//    }
     overlayView.clipsToBounds = true
     overlayView.addSubview(overlayVC.view)
     
@@ -145,6 +153,11 @@ class Overlay: NSObject, OverlaySpec {
     overlayVC.view.frame = activeVC.view.frame
     overlayVC.willMove(toParent: activeVC)
     activeVC.view.addSubview(overlayView)
+    //set overlay view's origin if size given: center
+//    if overlaySize != nil {
+//      NorthLib.pin(overlayView.centerX, to: activeVC.view.centerX)
+//      NorthLib.pin(overlayView.centerY, to: activeVC.view.centerY)
+//    }
     overlayVC.didMove(toParent: activeVC)
   }
   

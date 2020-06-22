@@ -82,11 +82,12 @@ class SimpleOverlayVC: UIViewController {
     if sender.view == imageView {
       openedFromRect = imageView.frame
       oa?.openAnimated(fromFrame: openedFromRect, toFrame: child.imageView.frame)
-      
+      oa?.overlaySize = child.imageView.frame.size
 //      oa?.open(animated: true, fromBottom: false)
     }
     else if sender.view == imageView2 {
        openedFromRect = imageView2.frame
+      oa?.overlaySize = child.imageView.frame.size
        oa?.openAnimated(fromFrame: openedFromRect, toFrame: child.imageView.frame)
 //      oa?.open(animated: true, fromBottom: true)
     }
