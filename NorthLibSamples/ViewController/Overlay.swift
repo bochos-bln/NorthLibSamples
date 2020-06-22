@@ -78,9 +78,10 @@ recognizers being active in 'overlay'.
 
 // MARK: - OverlayAnimator
 class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
-  private var openDuration: Double = 0.4 //usually 0.4-0.5
-  private var closeDuration: Double = 0.25//
-  private var debug = false
+  //usually 0.4-0.5
+  private var openDuration: Double { get { return debug ? 3.0 : 0.4 } }
+  private var closeDuration: Double { get { return debug ? 3.0 : 0.25 } }
+  private var debug = true
     
   var shadeView: UIView?
   var overlayView: UIView?
@@ -138,7 +139,6 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
     self.overlayView = overlayView
     /// add the pan
     
-
     let pinchGestureRecognizer
       = UIPinchGestureRecognizer(target: self,
                                  action: #selector(didPinchWith(gestureRecognizer:)))
@@ -164,12 +164,18 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
     overlayVC.view.frame = activeVC.view.frame
     overlayVC.willMove(toParent: activeVC)
     activeVC.view.addSubview(overlayView)
+    //ToDo to/toSafe/frame.....
+    //the ChildOverlayVC likes frame no autolayout
+    //for each child type the animation may needs to be fixed
+    //Do make it niche for ImageCollection VC for now!
+    NorthLib.pin(overlayView, toSafe: activeVC.view)
     //set overlay view's origin if size given: center
 //    if overlaySize != nil {
 //      NorthLib.pin(overlayView.centerX, to: activeVC.view.centerX)
 //      NorthLib.pin(overlayView.centerY, to: activeVC.view.centerY)
 //    }
     overlayVC.didMove(toParent: activeVC)
+    transferSubviews()
   }
   
   // MARK: - removeFromActiveVC
@@ -189,14 +195,14 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
   
   // MARK: - open animated
   func open(animated: Bool, fromBottom: Bool) {
+    addToActiveVC()
+
     guard animated,
       let targetSnapshot
       = overlayVC.view.snapshotView(afterScreenUpdates: true) else {
         showWithoutAnimation()
         return
     }
-
-    addToActiveVC()
     targetSnapshot.alpha = 0.0
    
     if fromBottom {
@@ -218,21 +224,36 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
       targetSnapshot.removeFromSuperview()
     }
     
-    guard let icv = self.overlayVC as? ImageCollectionVC else { return }
-    
-    guard let overlayView = self.overlayView else { return }
-    icv.collectionView.backgroundColor = .clear
-    overlayView.addSubview(icv.xButton)
-    pin(icv.xButton.right, to: overlayView.rightGuide(), dist: -15)
-    pin(icv.xButton.top, to: overlayView.topGuide(), dist: 15)
-    
-    if let pc = icv.pageControl {
-      overlayView.addSubview(pc)
-      pin(pc.centerX, to: overlayView.centerX)
-      // Example values for dist to bottom and height
-      pin(pc.bottom, to: overlayView.bottomGuide(), dist: -15)
-    }
+
+  
   }
+  
+  // MARK: - transferSubviews
+  func transferSubviews() {
+    if let ziv = self.overlayVC.view.subviews[0] as? ZoomedImageView,
+        let overlayView = self.overlayView {
+          overlayView.addSubview(ziv.xButton)
+          pin(ziv.xButton.right, to: overlayView.rightGuide(), dist: -15)
+          pin(ziv.xButton.top, to: overlayView.topGuide(), dist: 15)
+      }
+      
+      
+      guard let icv = self.overlayVC as? ImageCollectionVC else { return }
+      guard let overlayView = self.overlayView else { return }
+      icv.collectionView.backgroundColor = .clear
+      overlayView.addSubview(icv.xButton)
+      pin(icv.xButton.right, to: overlayView.rightGuide(), dist: -15)
+      pin(icv.xButton.top, to: overlayView.topGuide(), dist: 15)
+      
+      if let pc = icv.pageControl {
+        overlayView.addSubview(pc)
+        pin(pc.centerX, to: overlayView.centerX)
+        // Example values for dist to bottom and height
+        pin(pc.bottom, to: overlayView.bottomGuide(), dist: -15)
+      }
+  }
+  
+  
   var otherGestureRecognizersScrollView : UIScrollView?
   // MARK: - UIGestureRecognizerDelegate
   func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -315,6 +336,7 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
     
    // MARK: - open fromFrame
   func openAnimated(fromFrame: CGRect, toFrame: CGRect) {
+    addToActiveVC()
     guard let fromSnapshot = activeVC.view.resizableSnapshotView(from: fromFrame, afterScreenUpdates: false, withCapInsets: .zero) else {
       showWithoutAnimation()
       return
@@ -324,7 +346,7 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
        return
      }
 
-    addToActiveVC()
+
     targetSnapshot.alpha = 0.0
 
     if debug {
