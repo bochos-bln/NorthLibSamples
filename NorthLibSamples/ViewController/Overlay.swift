@@ -59,14 +59,25 @@ recognizers being active in 'overlay'.
     X=> activeVC.view contain overlayview
     X=> overlayview handles pan
     X=> overlayview handles pinch
- O pinch to Close
+ X pinch to Close
+ O integrate with ImageCollectionView
+    O Base setup
+    O fix frames
+        O Concept Issue ImageCollectionView uses Fullscreen
+                      => pan needs a fixed close x
+                      => black ImageCollectionView background needs to stay or disabled due we have shadeView
+                      =>
+ 
+    O text&fix Pinch/Zoom
+    O test&fix Pan
+    O TBD
 ?O next/upcomming
  
  
  */
 
 // MARK: - OverlayAnimator
-class Overlay: NSObject, OverlaySpec {
+class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
   private var openDuration: Double = 0.4 //usually 0.4-0.5
   private var closeDuration: Double = 0.25//
   private var debug = false
@@ -137,8 +148,8 @@ class Overlay: NSObject, OverlaySpec {
 
     overlayView.addGestureRecognizer(panGestureRecognizer)
     overlayView.addGestureRecognizer(pinchGestureRecognizer)
-    
-    
+    pinchGestureRecognizer.delegate = self
+//    overlayView.delegate = self
     overlayView.alpha = 1.0
 //    if let size = overlaySize {
 //      overlayView.pinSize(size)
@@ -206,7 +217,33 @@ class Overlay: NSObject, OverlaySpec {
       self.overlayVC.view.isHidden = false
       targetSnapshot.removeFromSuperview()
     }
+    
+    guard let icv = self.overlayVC as? ImageCollectionVC else { return }
+    
+    guard let overlayView = self.overlayView else { return }
+    icv.collectionView.backgroundColor = .clear
+    overlayView.addSubview(icv.xButton)
+    pin(icv.xButton.right, to: overlayView.rightGuide(), dist: -15)
+    pin(icv.xButton.top, to: overlayView.topGuide(), dist: 15)
+    
+    if let pc = icv.pageControl {
+      overlayView.addSubview(pc)
+      pin(pc.centerX, to: overlayView.centerX)
+      // Example values for dist to bottom and height
+      pin(pc.bottom, to: overlayView.bottomGuide(), dist: -15)
+    }
   }
+  var otherGestureRecognizersScrollView : UIScrollView?
+  // MARK: - UIGestureRecognizerDelegate
+  func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+
+    if let sv = otherGestureRecognizer.view as? UIScrollView {
+      otherGestureRecognizersScrollView = sv
+    }
+    return true
+  }
+  
+  
   
   // MARK: - didPanWith
   var panStartY:CGFloat = 0.0
@@ -241,8 +278,19 @@ class Overlay: NSObject, OverlaySpec {
   // MARK: - didPinchWith
   var pinchStartTransform: CGAffineTransform?
   @IBAction func didPinchWith(gestureRecognizer: UIPinchGestureRecognizer) {
-    guard gestureRecognizer.view != nil else { return }
+    if let sv = otherGestureRecognizersScrollView {
+      if gestureRecognizer.state == .ended, 2*sv.zoomScale/4 < sv.minimumZoomScale/3 {
+        self.close(animated: true, toBottom: true)
+//        print("sv1..:", 2*sv.zoomScale/3, "<", sv.minimumZoomScale/4)
+//        print("sv2..:", 2*sv.zoomScale/4, "<", sv.minimumZoomScale/3)
+//        print("sv3..:", 1*sv.zoomScale/4, "<", sv.minimumZoomScale/3)
+//        print("sv4..:", 1*sv.zoomScale/3, "<", sv.minimumZoomScale/4)
+      }
+      return
+    }
     
+    
+    guard gestureRecognizer.view != nil else { return }
     if gestureRecognizer.state == .began {
       pinchStartTransform = gestureRecognizer.view?.transform
     }
@@ -257,7 +305,7 @@ class Overlay: NSObject, OverlaySpec {
       if gestureRecognizer.view?.transform.a ?? 1.0 < closeRatio {
         close(animated: true, toBottom: true)
       }
-      else{
+      else if(self.pinchStartTransform != nil){
         UIView.animate(seconds: closeDuration) {
           gestureRecognizer.view?.transform = self.pinchStartTransform!
         }

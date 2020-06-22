@@ -26,8 +26,8 @@ class SimpleOverlayVC: UIViewController {
   var imageView = UIImageView()
   var imageView2 = UIImageView(frame: CGRect(x: 10, y: 10, width: 180, height: 120))
   var child = ChildOverlayVC()
+  var icVc = ImageCollectionVC()
   var oa: Overlay?
-  
   override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -56,9 +56,45 @@ class SimpleOverlayVC: UIViewController {
     imageView2.addTap(self, action: #selector(handleTap))
     child.imageView.addTap(self, action: #selector(handleCloseTap))
     
+    if true /*USE ImageCollectionVC DEMO */{
+      
+
+      icVc.images = [
+        
+        OptionalImageItem(withWaitingName: "IMG_M", waitingExt: "jpg", waitingTint: UIColor.red, detailName: "IMG_L", detailExt: "jpg", detailTint: UIColor.red, exchangeTimeout: 1.0),
+        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.green, detailName: "IMG_L", detailExt: "jpg", detailTint: UIColor.green, exchangeTimeout: 4.0),
+        OptionalImageItem(withWaitingName: "IMG_S", waitingExt: "jpg", waitingTint: UIColor.blue),
+        OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.yellow, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.yellow, exchangeTimeout: 8.0),
+        OptionalImageItem(withWaitingName: "IMG_S", waitingExt: "jpg", waitingTint: UIColor.purple),
+        OptionalImageItem(withWaitingName: "IMG_M", waitingExt: "jpg", waitingTint: UIColor.systemPink, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.systemPink, exchangeTimeout: 12.0),
+        OptionalImageItem(withWaitingName: "IMG_L", waitingExt: "jpg", waitingTint: UIColor.brown),
+        OptionalImageItem(withWaitingName: "IMG_XL", waitingExt: "jpg", waitingTint: UIColor.cyan, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.cyan, exchangeTimeout: 16.0),
+      ]
+      icVc.pageControlMaxDotsCount = 3
+      icVc.addMenuItem(title: "close animated", icon: "xmark.circle") { (str) in
+        self.oa?.close(animated: true, toBottom: false)
+      }
+      icVc.addMenuItem(title: "close to bottom", icon: "arrow.down.square.fill") { (str) in
+        self.oa?.close(animated: true, toBottom: true)
+      }
+      icVc.addMenuItem(title: "close", icon: "") { (str) in
+        print("handle \(str)")
+      }
+      icVc.onTap { (oimg, x, y) in
+        print("tapped at: \(x) \(y)")
+      }
+      icVc.onX {
+         self.oa?.close(animated: true, toBottom: true)
+      }
+      oa = Overlay(overlay: icVc, into: self)
+      oa?.overlayView?.addSubview(icVc.xButton)
+      if let pc = icVc.pageControl {
+        oa?.overlayView?.addSubview(pc)
+      }
+    } else {
+      oa = Overlay(overlay: child, into: self)
+    }
   
-    
-    oa = Overlay(overlay: child, into: self)
     oa?.closeRatio = 0.5
     oa?.shadeColor = .black
     oa?.maxAlpha = 0.99
@@ -66,6 +102,24 @@ class SimpleOverlayVC: UIViewController {
   
   // MARK: Single Tap
   @objc func handleTap(sender: UITapGestureRecognizer){
+//    icVc.collectionView.backgroundColor = .clear
+        if sender.view == imageView {
+//          openedFromRect = imageView.frame
+//          oa?.openAnimated(fromFrame: openedFromRect, toFrame: child.imageView.frame)
+//          oa?.overlaySize = child.imageView.frame.size
+          oa?.open(animated: true, fromBottom: false)
+        }
+        else if sender.view == imageView2 {
+//           openedFromRect = imageView2.frame
+//          oa?.overlaySize = child.imageView.frame.size
+//           oa?.openAnimated(fromFrame: openedFromRect, toFrame: child.imageView.frame)
+          oa?.open(animated: true, fromBottom: true)
+        }
+         
+  }
+  
+  
+  @objc func handleTap1(sender: UITapGestureRecognizer){
     //    if let nc = self.navigationController {
     //      nc.pushViewController(child, animated: true)
     //    }
