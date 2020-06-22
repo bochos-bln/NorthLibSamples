@@ -87,10 +87,6 @@ class SimpleOverlayVC: UIViewController {
          self.oa?.close(animated: true, toBottom: true)
       }
       oa = Overlay(overlay: icVc, into: self)
-      oa?.overlayView?.addSubview(icVc.xButton)
-      if let pc = icVc.pageControl {
-        oa?.overlayView?.addSubview(pc)
-      }
     } else {
       oa = Overlay(overlay: child, into: self)
     }
