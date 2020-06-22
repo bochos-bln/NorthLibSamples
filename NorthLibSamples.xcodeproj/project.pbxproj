@@ -35,7 +35,7 @@
 		00F606EE249BC65900D1BB07 /* IMG_L_7.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 00F606E4249BC65800D1BB07 /* IMG_L_7.jpg */; };
 		00F606EF249BC65900D1BB07 /* IMG_L_2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 00F606E5249BC65800D1BB07 /* IMG_L_2.jpg */; };
 		00F606F0249BC65900D1BB07 /* IMG_L_3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 00F606E6249BC65800D1BB07 /* IMG_L_3.jpg */; };
-		00F606F2249BC6D500D1BB07 /* ImageCollectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F606F1249BC6D500D1BB07 /* ImageCollectionVC.swift */; };
+		00F606F2249BC6D500D1BB07 /* PhotoGridCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F606F1249BC6D500D1BB07 /* PhotoGridCVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -117,7 +117,7 @@
 		00F606E4249BC65800D1BB07 /* IMG_L_7.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = IMG_L_7.jpg; sourceTree = "<group>"; };
 		00F606E5249BC65800D1BB07 /* IMG_L_2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = IMG_L_2.jpg; sourceTree = "<group>"; };
 		00F606E6249BC65800D1BB07 /* IMG_L_3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = IMG_L_3.jpg; sourceTree = "<group>"; };
-		00F606F1249BC6D500D1BB07 /* ImageCollectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCollectionVC.swift; sourceTree = "<group>"; };
+		00F606F1249BC6D500D1BB07 /* PhotoGridCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGridCVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,7 +166,7 @@
 			children = (
 				009CA17C247E642500453664 /* ZoomableImageViewController.swift */,
 				00ECEE5E249A47AE0027171D /* SimpleOverlayVC.swift */,
-				00F606F1249BC6D500D1BB07 /* ImageCollectionVC.swift */,
+				00F606F1249BC6D500D1BB07 /* PhotoGridCVC.swift */,
 				00ECEE64249A54BB0027171D /* Overlay.swift */,
 			);
 			path = ViewController;
@@ -439,7 +439,7 @@
 			files = (
 				00C89685247E517800E4A43E /* AppDelegate.swift in Sources */,
 				009CA17D247E642500453664 /* ZoomableImageViewController.swift in Sources */,
-				00F606F2249BC6D500D1BB07 /* ImageCollectionVC.swift in Sources */,
+				00F606F2249BC6D500D1BB07 /* PhotoGridCVC.swift in Sources */,
 				00C89687247E517800E4A43E /* SceneDelegate.swift in Sources */,
 				00ECEE65249A54BB0027171D /* Overlay.swift in Sources */,
 				00ECEE5F249A47AE0027171D /* SimpleOverlayVC.swift in Sources */,

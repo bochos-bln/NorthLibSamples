@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 import NorthLib
-class ImageCollectionVC: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+class PhotoGridCVC: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
   
   var oa: Overlay?
   var child = ChildOverlayVC()
@@ -57,7 +57,7 @@ class ImageCollectionVC: UIViewController, UICollectionViewDataSource, UICollect
 
 
 // MARK: - UICollectionViewDataSource
-extension ImageCollectionVC {
+extension PhotoGridCVC {
   // tell the collection view how many cells to make
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     return self.files.count
@@ -84,7 +84,7 @@ extension ImageCollectionVC {
 
 
 // MARK: - UICollectionViewDelegate
-extension ImageCollectionVC {
+extension PhotoGridCVC {
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
     // handle tap events
     print("You selected cell #\(indexPath.item)!")
