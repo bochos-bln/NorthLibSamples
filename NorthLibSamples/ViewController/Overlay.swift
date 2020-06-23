@@ -81,7 +81,7 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
   //usually 0.4-0.5
   private var openDuration: Double { get { return debug ? 3.0 : 0.4 } }
   private var closeDuration: Double { get { return debug ? 3.0 : 0.25 } }
-  private var debug = true
+  private var debug = false
     
   var shadeView: UIView?
   var overlayView: UIView?
