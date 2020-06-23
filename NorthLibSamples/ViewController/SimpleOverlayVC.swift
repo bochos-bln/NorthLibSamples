@@ -29,23 +29,6 @@ class SimpleOverlayVC: UIViewController {
   // MARK: viewDidLoad
   override func viewDidLoad() {
     super.viewDidLoad()
-    if false {/// ImageCollectionVC Demo
-      oa = Overlay(overlay: getImageCollectionVC(), into: self)
-      imageView.addTap(self, action: #selector(handleTapImageCollectionVC))
-      imageView2.addTap(self, action: #selector(handleTapImageCollectionVC))
-    }
-    else if true {/// Child Vc with ZoomedImageView
-      oa = Overlay(overlay: getChildVcWithZoomedImageView(), into: self)
-      imageView.addTap(self, action: #selector(handleTapZoomedImageView))
-      imageView2.addTap(self, action: #selector(handleTapZoomedImageView))
-    }
-    else {/// ChildOverlayVC
-      let child = ChildOverlayVC()
-      oa = Overlay(overlay: child, into: self)
-      child.imageView.addTap(self, action: #selector(handleCloseTap))
-      imageView.addTap(self, action: #selector(handleTapChildOverlayVC))
-      imageView2.addTap(self, action: #selector(handleTapChildOverlayVC))
-    }
     setupView()
     oa?.closeRatio = 0.5
     oa?.shadeColor = .black
@@ -64,7 +47,7 @@ class SimpleOverlayVC: UIViewController {
       imageView.image = image
     }
     
-    let wrapper = UIView()
+    let wrapper = UIView()//Important to pin to safe otherwise transition "jumps"
     
     imageView.backgroundColor = .yellow
     imageView.contentMode = .scaleAspectFit
@@ -72,6 +55,36 @@ class SimpleOverlayVC: UIViewController {
     
     wrapper.addSubview(imageView)
     wrapper.addSubview(imageView2)
+    
+    let changeChildLabel = UILabel()
+    changeChildLabel.textColor = .white
+    changeChildLabel.layer.borderColor = UIColor.blue.cgColor
+    changeChildLabel.layer.borderWidth = 2.0
+    changeChildLabel.numberOfLines = 2
+    changeChildLabel.textAlignment = .center
+    changeChildLabel.text = child.title
+    changeChildLabel.addTap(self, action: #selector(handleTapChangeChild))
+    
+    let changeAppearLabel = UILabel()
+    changeAppearLabel.textColor = .white
+    changeAppearLabel.layer.borderColor = UIColor.red.cgColor
+    changeAppearLabel.layer.borderWidth = 2.0
+    changeAppearLabel.numberOfLines = 2
+    changeAppearLabel.textAlignment = .center
+    changeAppearLabel.text = appear.title
+    changeAppearLabel.addTap(self, action: #selector(handleTapChangeAppear))
+    
+    
+    wrapper.addSubview(changeChildLabel)
+    wrapper.addSubview(changeAppearLabel)
+    
+    NorthLib.pin(changeChildLabel.left, to: wrapper.left)
+    NorthLib.pin(changeChildLabel.right, to: wrapper.right)
+    NorthLib.pin(changeChildLabel.bottom, to: wrapper.bottom, dist: -20)
+    
+    NorthLib.pin(changeAppearLabel.left, to: wrapper.left)
+    NorthLib.pin(changeAppearLabel.right, to: wrapper.right)
+    NorthLib.pin(changeAppearLabel.bottom, to: wrapper.bottom, dist: -70)
     
     NorthLib.pin(imageView.left, to: wrapper.left)
     NorthLib.pin(imageView.right, to: wrapper.right)
@@ -82,12 +95,87 @@ class SimpleOverlayVC: UIViewController {
     
     NorthLib.pin(imageView.centerY, to: wrapper.centerY)
     
+    imageView.addTap(self, action: #selector(handleTap))
+    imageView2.addTap(self, action: #selector(handleTap))
     self.view.addSubview(wrapper)
     NorthLib.pin(wrapper, toSafe: self.view)
   }
+    // MARK: handleTapChangeChild
+  @objc func handleTapChangeChild(sender: UITapGestureRecognizer){
+    guard let label = sender.view as? UILabel else { return }
+    child = child.next
+    label.text = child.title
+  }
+    // MARK: handleTapChangeAppear
+  @objc func handleTapChangeAppear(sender: UITapGestureRecognizer){
+    guard let label = sender.view as? UILabel else { return }
+    appear = appear.next
+    label.text = appear.title
+  }
   
-  // MARK: getImageCollectionVC()
-  func getImageCollectionVC() -> UIViewController{
+  
+  // MARK: ChildOptions
+  var child = ChildOptions.simpleImage
+  enum ChildOptions {
+    case imageCollectionVC
+    case zoomedImageView
+    case simpleImage
+    var next : ChildOptions{
+      switch self {
+      case .imageCollectionVC:
+        return .zoomedImageView
+      case .zoomedImageView:
+        return .simpleImage
+      case .simpleImage:
+        return .imageCollectionVC
+      } }
+    var title : String {
+      get{
+        switch self {
+        case .imageCollectionVC:
+          return "Child:\nImageCollectionVC"
+        case .zoomedImageView:
+          return "Child:\nZoomedImageView"
+        case .simpleImage:
+          return "Child:\nSimpleImage"
+        }}}
+  }
+  
+  // MARK: AppearOptions
+  var appear = AppearOptions.appearFromBottom
+  enum AppearOptions {
+    case appearFromBottom
+    case appearAnimated
+    case appearWithoutAnimation
+    case fromSourceFrame
+    var next : AppearOptions{
+      switch self {
+      case .appearFromBottom:
+        return .appearAnimated
+      case .appearAnimated:
+        return .appearWithoutAnimation
+      case .appearWithoutAnimation:
+        return .fromSourceFrame
+      case .fromSourceFrame:
+        return .appearFromBottom
+      } }
+    var title : String {
+      get{
+        let pre = "Appear (Disappear only for SimpleImage)\n"
+        switch self {
+        case .appearFromBottom:
+          return pre+"animated from Bottom"
+        case .appearAnimated:
+          return pre+"animated"
+        case .appearWithoutAnimation:
+          return pre+"without Animation"
+        case .fromSourceFrame:
+          return pre+"from Source Frame"
+        }}}}
+  
+  
+  // MARK: childWithImageCollectionVC()
+  lazy var childWithImageCollectionVC : UIViewController = {
     let icVc = ImageCollectionVC()
     icVc.images = [
       
@@ -117,10 +205,10 @@ class SimpleOverlayVC: UIViewController {
       self.oa?.close(animated: true, toBottom: true)
     }
     return icVc
-  }
+  }()
   
-  // MARK: getChildVcWithZoomedImageView()
-  func getChildVcWithZoomedImageView() -> UIViewController{
+  // MARK: childVcWithZoomedImageView
+  lazy var childVcWithZoomedImageView : UIViewController = {
     let oi = OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.yellow, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.cyan, exchangeTimeout: 0)
     let zView = ZoomedImageView(optionalImage: oi)
     zView.onX {
@@ -130,68 +218,100 @@ class SimpleOverlayVC: UIViewController {
     vc.view.addSubview(zView)
     NorthLib.pin(zView, to: vc.view)
     return vc
+  }()
+  
+  // MARK: childVcChildOverlayVC
+  lazy var childVcChildOverlayVC : UIViewController = {
+    let child = ChildOverlayVC()
+    oa = Overlay(overlay: child, into: self)
+    child.imageView.addTap(self, action: #selector(handleCloseTap))
+    return child
+  }()
+  // MARK: handleCloseTap
+  @objc func handleCloseTap(sender: UITapGestureRecognizer){
+    switch self.appear {
+    case .appearAnimated:
+      oa?.close(animated: true)
+      break
+    case .appearFromBottom:
+      oa?.close(animated: true, toBottom: true)
+      break
+    case .appearWithoutAnimation:
+      oa?.close(animated: false, toBottom: false)
+      break
+    case .fromSourceFrame:
+      guard let covc = childVcChildOverlayVC as? ChildOverlayVC else {
+        oa?.close(animated: true)
+        break
+      }
+      oa?.close(fromRect: covc.imageView.frame, toRect: openedFromRect)
+      break
+    }
   }
   
   /// **Temp Vars openedFromRect**
   var openedFromRect = CGRect.zero
-  // MARK: handleTapChildOverlayVC
-  @objc func handleTapChildOverlayVC(sender: UITapGestureRecognizer){
-    guard let child = self.oa?.overlayVC as? ChildOverlayVC else { return }
-    child.view.frame = self.view.frame
-    child.view.setNeedsLayout()
-    child.view.layoutIfNeeded()
+  // MARK: handleTap
+  @objc func handleTap(sender: UITapGestureRecognizer){
+    
+    var openToRect : CGRect = .zero
+    
+    switch self.child {
+    case .imageCollectionVC:
+      self.oa = Overlay(overlay: childWithImageCollectionVC, into: self)
+      break;
+    case .zoomedImageView:
+      self.oa = Overlay(overlay: childVcWithZoomedImageView, into: self)
+      guard let ziv = childVcChildOverlayVC.view.subviews[0] as? ZoomedImageView else { break }
+      if sender.view == imageView {
+        ziv.imageView.image = imageView.image
+      }
+      else if sender.view == imageView2 {
+        ziv.imageView.image = imageView2.image
+      }
+      ziv.setNeedsLayout()
+      ziv.layoutIfNeeded()
+      self.oa?.overlaySize = ziv.imageView.frame.size
+      openToRect = ziv.imageView.frame
+      break;
+    case .simpleImage:
+      self.oa = Overlay(overlay: childVcChildOverlayVC, into: self)
+      guard let covc = childVcChildOverlayVC as? ChildOverlayVC else { break }
+      if sender.view == imageView {
+        covc.imageView.image = imageView.image
+      }
+      else if sender.view == imageView2 {
+        covc.imageView.image = imageView2.image
+      }
+      
+      covc.view.frame = self.view.frame
+      covc.view.setNeedsLayout()
+      covc.view.layoutIfNeeded()
+      self.oa?.overlaySize = covc.imageView.frame.size
+      openToRect = covc.imageView.frame
+      break;
+    }
     
     if sender.view == imageView {
-      child.imageView.image = imageView.image
       openedFromRect = imageView.frame
-      oa?.openAnimated(fromFrame: openedFromRect, toFrame: child.imageView.frame)
-      oa?.overlaySize = child.imageView.frame.size
-    }
-    else if sender.view == imageView2 {
-      child.imageView.image = imageView2.image
-      openedFromRect = imageView2.frame
-      oa?.overlaySize = child.imageView.frame.size
-      oa?.openAnimated(fromFrame: openedFromRect, toFrame: child.imageView.frame)
-    }
-  }
-  
-  // MARK: handleTapZoomedImageView
-  @objc func handleTapZoomedImageView(sender: UITapGestureRecognizer){
-    guard let ziv = self.oa?.overlayVC.view.subviews[0] as? ZoomedImageView else { return }
-    if sender.view == imageView {
-      ziv.optionalImage.image = imageView.image
-      openedFromRect = imageView.frame //did not work due content insets centering!!
-      //    oa?.openAnimated(fromFrame: openedFromRect, toFrame: ziv.imageView.frame)
-      oa?.open(animated: true, fromBottom: true)
-    }
-    else if sender.view == imageView2 {
-      ziv.optionalImage.image = imageView2.image
-      openedFromRect = imageView2.frame//did not work due content insets centering!!
-      //    oa?.openAnimated(fromFrame: openedFromRect, toFrame: ziv.imageView.frame)
-      oa?.open(animated: true, fromBottom: false)
-    }
-
-  }
-  
-  // MARK: handleTapImageCollectionVC
-  @objc func handleTapImageCollectionVC (sender: UITapGestureRecognizer){
-    /// Handle other childs...
-    if sender.view == imageView {
-      openedFromRect = imageView.frame
-      oa?.open(animated: true, fromBottom: false)
     }
     else if sender.view == imageView2 {
       openedFromRect = imageView2.frame
+    }
+    switch self.appear {
+    case .appearAnimated:
+      oa?.open(animated: true, fromBottom: false)
+      break
+    case .appearFromBottom:
       oa?.open(animated: true, fromBottom: true)
+      break
+    case .appearWithoutAnimation:
+      oa?.open(animated: false, fromBottom: false)
+      break
+    case .fromSourceFrame:
+      oa?.openAnimated(fromFrame: openedFromRect, toFrame: openToRect)
+      break
     }
-  }
-  
-  // MARK: handleCloseTap
-  @objc func handleCloseTap(sender: UITapGestureRecognizer){
-    if let child = self.oa?.overlayVC as? ChildOverlayVC {
-      self.oa?.close(fromRect: child.imageView.frame, toRect: openedFromRect)
-    }
-    ///others have a close x
   }
 }
 
