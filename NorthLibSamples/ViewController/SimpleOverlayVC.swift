@@ -176,7 +176,7 @@ class SimpleOverlayVC: UIViewController {
   
   // MARK: childWithImageCollectionVC()
   lazy var childWithImageCollectionVC : UIViewController = {
-    let icVc = ImageCollectionVCT()
+    let icVc = ImageCollectionVC()
     icVc.images = [
       
       OptionalImageItem(withWaitingName: "IMG_M", waitingExt: "jpg", waitingTint: UIColor.red, detailName: "IMG_L", detailExt: "jpg", detailTint: UIColor.red, exchangeTimeout: 1.0),
@@ -210,7 +210,7 @@ class SimpleOverlayVC: UIViewController {
   // MARK: childVcWithZoomedImageView
   lazy var childVcWithZoomedImageView : UIViewController = {
     let oi = OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.yellow, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.cyan, exchangeTimeout: 0)
-    let zView = ZoomedImageViewT(optionalImage: oi)
+    let zView = ZoomedImageView(optionalImage: oi)
     zView.onX {
       self.oa?.close(animated: true, toBottom: true)
     }
@@ -368,41 +368,6 @@ class ChildOverlayVC: UIViewController {
       let width = min(UIScreen.main.bounds.size.width, img.size.width)
       imageView.pinWidth(width)
       imageView.pinHeight(width*img.size.height/img.size.width)
-    }
-  }
-}
-
-class ZoomedImageViewT : ZoomedImageView, OverlayChildViewTransfer{
-  /// add and Layout to Child Views
-  func addToContainer(_ container:UIView?){
-    guard let container = container else { return }
-    container.addSubview(self.xButton)
-    NorthLib.pin(self.xButton.right, to: container.rightGuide(), dist: -15)
-    NorthLib.pin(self.xButton.top, to: container.topGuide(), dist: 15)
-  }
-  ///optional
-  func removeFromParent(){
-    self.xButton.removeFromSuperview()
-  }
-}
-
-class ImageCollectionVCT : ImageCollectionVC, OverlayChildViewTransfer{
-  /// add and Layout to Child Views
-  func addToContainer(_ container:UIView?){
-    guard let container = container else { return }
-    
-    
-    self.collectionView.backgroundColor = .clear
-    container.addSubview(self.xButton)
-    pin(self.xButton.right, to: container.rightGuide(), dist: -15)
-    pin(self.xButton.top, to: container.topGuide(), dist: 15)
-    
-    if let pc = self.pageControl {
-      
-      container.addSubview(pc)
-      pin(pc.centerX, to: container.centerX)
-      // Example values for dist to bottom and height
-      pin(pc.bottom, to: container.bottomGuide(), dist: -15)
     }
   }
 }
