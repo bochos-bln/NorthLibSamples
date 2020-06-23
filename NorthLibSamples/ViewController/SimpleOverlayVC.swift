@@ -161,7 +161,7 @@ class SimpleOverlayVC: UIViewController {
       } }
     var title : String {
       get{
-        let pre = "Appear (Disappear only for SimpleImage)\n"
+        let pre = "Appear (Disappear on X)\n"
         switch self {
         case .appearFromBottom:
           return pre+"animated from Bottom"
@@ -227,7 +227,7 @@ class SimpleOverlayVC: UIViewController {
     return child
   }()
   // MARK: handleCloseTap
-  @objc func handleCloseTap(sender: UITapGestureRecognizer){
+  @objc func handleCloseTap(sender: UITapGestureRecognizer?){
     switch self.appear {
     case .appearAnimated:
       oa?.close(animated: true)
@@ -258,6 +258,10 @@ class SimpleOverlayVC: UIViewController {
     switch self.child {
     case .imageCollectionVC:
       self.oa = Overlay(overlay: childWithImageCollectionVC, into: self)
+      guard let icv = childWithImageCollectionVC as? ImageCollectionVC else { break }
+      icv.onX {
+        self.handleCloseTap(sender: nil)
+      }
       break;
     case .zoomedImageView:
       self.oa = Overlay(overlay: childVcWithZoomedImageView, into: self)
@@ -268,6 +272,9 @@ class SimpleOverlayVC: UIViewController {
       else if sender.view == imageView2 {
         ziv.imageView.image = imageView2.image
       }
+      ziv.onX {
+           self.handleCloseTap(sender: nil)
+         }
       ziv.setNeedsLayout()
       ziv.layoutIfNeeded()
       self.oa?.overlaySize = ziv.imageView.frame.size
