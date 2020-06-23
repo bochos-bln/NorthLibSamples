@@ -175,7 +175,10 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
 //      NorthLib.pin(overlayView.centerY, to: activeVC.view.centerY)
 //    }
     overlayVC.didMove(toParent: activeVC)
-    transferSubviews()
+    
+    if let ct = overlayVC as? OverlayChildViewTransfer {
+      ct.addToContainer(overlayView)
+    }
   }
   
   // MARK: - removeFromActiveVC
@@ -183,6 +186,9 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
     shadeView?.removeFromSuperview()
     shadeView = nil
     overlayVC.view.removeFromSuperview()
+    if let ct = overlayVC as? OverlayChildViewTransfer {
+      ct.removeFromParent()
+    }
     overlayView?.removeFromSuperview()
     overlayView = nil
   }
@@ -228,32 +234,6 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
   
   }
   
-  // MARK: - transferSubviews
-  func transferSubviews() {
-    if let ziv = self.overlayVC.view.subviews[0] as? ZoomedImageView,
-        let overlayView = self.overlayView {
-          overlayView.addSubview(ziv.xButton)
-          pin(ziv.xButton.right, to: overlayView.rightGuide(), dist: -15)
-          pin(ziv.xButton.top, to: overlayView.topGuide(), dist: 15)
-      }
-      
-      
-      guard let icv = self.overlayVC as? ImageCollectionVC else { return }
-      guard let overlayView = self.overlayView else { return }
-      icv.collectionView.backgroundColor = .clear
-      overlayView.addSubview(icv.xButton)
-      pin(icv.xButton.right, to: overlayView.rightGuide(), dist: -15)
-      pin(icv.xButton.top, to: overlayView.topGuide(), dist: 15)
-      
-      if let pc = icv.pageControl {
-        overlayView.addSubview(pc)
-        pin(pc.centerX, to: overlayView.centerX)
-        // Example values for dist to bottom and height
-        pin(pc.bottom, to: overlayView.bottomGuide(), dist: -15)
-      }
-  }
-  
-  
   var otherGestureRecognizersScrollView : UIScrollView?
   // MARK: - UIGestureRecognizerDelegate
   func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -280,10 +260,12 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
     self.overlayVC.view.frame.origin.x = translatedPoint.x*0.4
     let p = translatedPoint.y/(overlayView?.frame.size.height ?? 0-panStartY)
     if translatedPoint.y > 0 {
+      debug ? print("panDown... ",self.shadeView?.alpha as Any, (1 - p), p, self.maxAlpha) : ()
       self.shadeView?.alpha = max(0, min(1-p, CGFloat(self.maxAlpha)))
     }
 
     if gestureRecognizer.state == .ended {
+      debug ? print("ended... ",self.shadeView?.alpha as Any, (1 - p), p, self.maxAlpha) : ()
       if 2*p > closeRatio {
         self.close(animated: true, toBottom: true)
       }
@@ -455,4 +437,13 @@ class Overlay: NSObject, OverlaySpec, UIGestureRecognizerDelegate {
     }
     
   }
+}
+
+
+
+public protocol OverlayChildViewTransfer {
+   /// add and Layout to Child Views
+  func addToContainer(_ container:UIView?)
+  ///optional
+  func removeFromParent()
 }
