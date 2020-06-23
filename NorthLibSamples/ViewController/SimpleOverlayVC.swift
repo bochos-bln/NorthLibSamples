@@ -223,7 +223,6 @@ class SimpleOverlayVC: UIViewController {
   // MARK: childVcChildOverlayVC
   lazy var childVcChildOverlayVC : UIViewController = {
     let child = ChildOverlayVC()
-    oa = Overlay(overlay: child, into: self)
     child.imageView.addTap(self, action: #selector(handleCloseTap))
     return child
   }()
