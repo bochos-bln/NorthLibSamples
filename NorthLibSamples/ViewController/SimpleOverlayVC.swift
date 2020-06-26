@@ -115,7 +115,7 @@ class SimpleOverlayVC: UIViewController {
   
   
   // MARK: ChildOptions
-  var child = ChildOptions.simpleImage
+  var child = ChildOptions.zoomedImageView
   enum ChildOptions {
     case imageCollectionVC
     case zoomedImageView
@@ -212,9 +212,16 @@ class SimpleOverlayVC: UIViewController {
     let oi = OptionalImageItem(withWaitingName: "IMG_XS", waitingExt: "jpg", waitingTint: UIColor.yellow, detailName: "IMG_XL", detailExt: "jpg", detailTint: UIColor.cyan, exchangeTimeout: 0)
     let zView = ZoomedImageView(optionalImage: oi)
     zView.onX {
-      self.oa?.close(animated: true, toBottom: true)
+      self.oa?.close(animated: true)
     }
-    let vc = UIViewController()
+    
+    class ZoomedImageViewController : UIViewController, OverlayChildViewTransfer{
+      var ziv : ZoomedImageView?
+      public var delegate : OverlayChildViewTransfer { get { return ziv ?? self }}
+    }
+    
+    let vc = ZoomedImageViewController()
+    vc.ziv = zView
     vc.view.addSubview(zView)
     NorthLib.pin(zView, to: vc.view)
     return vc

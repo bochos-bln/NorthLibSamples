@@ -20,22 +20,33 @@ class ZoomableImageViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    if let filePath = Bundle.main.path(forResource: "IMG_L", ofType: "jpg") {
+    if let filePath = Bundle.main.path(forResource: "IMG_M", ofType: "jpg") {
       detailImage = UIImage(contentsOfFile: filePath)
     }
     
     if let filePath = Bundle.main.path(forResource: "IMG_XS", ofType: "jpg") {
       previewImage = UIImage(contentsOfFile: filePath)
     }
-        
-//    optionalImage.image = detailImage
+    
+    //    optionalImage.image = detailImage
     optionalImage.waitingImage = previewImage
     
     let zView = ZoomedImageView(optionalImage: optionalImage)
-      zView.onX {
-        print("Close")
+    zView.onX {
+      print("Close")
+    }
+    zView.onHighResImgNeeded(zoomFactor: 1.4) { (optionalImage, callback) in
+      print("  zView.onHighResImgNeeded")
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        if let filePath = Bundle.main.path(forResource: "IMG_XL", ofType: "jpg") {
+          self.optionalImage.image = UIImage(contentsOfFile: filePath)
+          callback(true)
+        } else {
+          callback(false)
+        }
       }
-      self.view = zView
+    }
+    self.view = zView
   }
   
   override func viewDidAppear(_ animated: Bool) {
