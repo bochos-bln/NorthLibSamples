@@ -49,7 +49,7 @@ class SimpleOverlayVC: UIViewController {
     
     let wrapper = UIView()//Important to pin to safe otherwise transition "jumps"
     
-    imageView.backgroundColor = .yellow
+//    imageView.backgroundColor = .yellow
     imageView.contentMode = .scaleAspectFit
     imageView.clipsToBounds = true
     
@@ -120,6 +120,7 @@ class SimpleOverlayVC: UIViewController {
     case imageCollectionVC
     case zoomedImageView
     case simpleImage
+    case demo
     var next : ChildOptions{
       switch self {
       case .imageCollectionVC:
@@ -127,6 +128,8 @@ class SimpleOverlayVC: UIViewController {
       case .zoomedImageView:
         return .simpleImage
       case .simpleImage:
+        return .demo
+      case .demo:
         return .imageCollectionVC
       } }
     var title : String {
@@ -138,6 +141,8 @@ class SimpleOverlayVC: UIViewController {
           return "Child:\nZoomedImageView"
         case .simpleImage:
           return "Child:\nSimpleImage"
+        case .demo:
+          return "Child:\nDemo"
         }}}
   }
   
@@ -272,7 +277,7 @@ class SimpleOverlayVC: UIViewController {
       break;
     case .zoomedImageView:
       self.oa = Overlay(overlay: childVcWithZoomedImageView, into: self)
-      guard let ziv = childVcChildOverlayVC.view.subviews[0] as? ZoomedImageView else { break }
+      guard let ziv = childVcWithZoomedImageView.view.subviews[0] as? ZoomedImageView else { break }
       if sender.view == imageView {
         ziv.imageView.image = imageView.image
       }
@@ -282,10 +287,16 @@ class SimpleOverlayVC: UIViewController {
       ziv.onX {
         self.handleCloseTap(sender: nil)
       }
-      ziv.setNeedsLayout()
-      ziv.layoutIfNeeded()
-      self.oa?.overlaySize = ziv.imageView.frame.size
-      openToRect = ziv.imageView.frame
+      
+      ziv.layer.borderColor = UIColor.red.cgColor
+      ziv.layer.borderWidth = 2.0
+      let targetSize = CGSize(width: 230, height: 400)
+//      ziv.pinSize(targetSize)
+//      ziv.setNeedsLayout()
+//      ziv.layoutIfNeeded()
+//      self.oa?.overlaySize = ziv.imageView.frame.size
+      self.oa?.overlaySize = targetSize
+//      openToRect = ziv.imageView.frame
       break;
     case .simpleImage:
       self.oa = Overlay(overlay: childVcChildOverlayVC, into: self)
@@ -303,6 +314,14 @@ class SimpleOverlayVC: UIViewController {
       self.oa?.overlaySize = covc.imageView.frame.size
       openToRect = covc.imageView.frame
       break;
+    case .demo:
+      let vc = DemoViewVC()
+      vc.view.setNeedsLayout()
+      vc.view.layoutIfNeeded()
+      print("handleTap DemoViewVC view frame:", vc.view.frame)
+      self.oa = Overlay(overlay: vc, into: self)
+      self.oa?.overlaySize = CGSize(width: 100, height: 50)
+      break
     }
     
     if sender.view == imageView {
@@ -340,7 +359,7 @@ class ChildOverlayVC: UIViewController {
   
   func setupWithWrapper(){
     let wrapper = UIView()
-    if let filePath = Bundle.main.path(forResource: "IMG_XL", ofType: "jpg") {
+    if let filePath = Bundle.main.path(forResource: "IMG_XS", ofType: "jpg") {
       imageView.image = UIImage(contentsOfFile: filePath)
       imageView.contentMode = .scaleAspectFit
     }
@@ -361,7 +380,7 @@ class ChildOverlayVC: UIViewController {
   }
   
   func setupWithoutWrapper(){
-    if let filePath = Bundle.main.path(forResource: "IMG_XL", ofType: "jpg") {
+    if let filePath = Bundle.main.path(forResource: "IMG_XS", ofType: "jpg") {
       imageView.image = UIImage(contentsOfFile: filePath)
       imageView.contentMode = .scaleAspectFit
     }
@@ -376,5 +395,15 @@ class ChildOverlayVC: UIViewController {
       imageView.pinWidth(width)
       imageView.pinHeight(width*img.size.height/img.size.width)
     }
+  }
+}
+
+
+///a simple UIViewController with a centered ImageView with Image
+class DemoViewVC: UIViewController {
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    self.view.backgroundColor = .yellow
   }
 }
