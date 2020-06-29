@@ -24,21 +24,34 @@ class ZoomableImageViewController: UIViewController {
       detailImage = UIImage(contentsOfFile: filePath)
     }
     
-    if let filePath = Bundle.main.path(forResource: "IMG_XS", ofType: "jpg") {
+    if let filePath = Bundle.main.path(forResource: "IMG_S", ofType: "jpg") {
       previewImage = UIImage(contentsOfFile: filePath)
     }
     
-    //    optionalImage.image = detailImage
-    optionalImage.waitingImage = previewImage
+//    optionalImage.image = detailImage
+//    optionalImage.waitingImage = previewImage
     
     let zView = ZoomedImageView(optionalImage: optionalImage)
     zView.onX {
       print("Close")
+      print("sv co: ", zView.scrollView.contentOffset)
     }
     zView.onHighResImgNeeded(zoomFactor: 1.4) { (optionalImage, callback) in
       print("  zView.onHighResImgNeeded")
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-        if let filePath = Bundle.main.path(forResource: "IMG_XL", ofType: "jpg") {
+      
+      if self.nextImageName == "" {
+        callback(false)
+        return;
+      }
+      
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        if let filePath = Bundle.main.path(forResource: self.nextImageName, ofType: "jpg") {
+          if self.nextImageName == "IMG_L" {
+            self.nextImageName = "IMG_XL"
+          } else {
+            self.nextImageName = ""
+            zView.onHighResImgNeeded(closure: nil)
+          }
           self.optionalImage.image = UIImage(contentsOfFile: filePath)
           callback(true)
         } else {
@@ -49,10 +62,12 @@ class ZoomableImageViewController: UIViewController {
     self.view = zView
   }
   
+  var nextImageName = "IMG_L"
+  
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     //Set Detail Image after Delay to Simulate Download
-    DispatchQueue.main.asyncAfter(deadline: .now() + 5.5) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
       print("Exchanged!")
       self.optionalImage.image = self.detailImage
     }
