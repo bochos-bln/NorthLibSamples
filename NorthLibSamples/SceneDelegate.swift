@@ -132,7 +132,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
       #if false //OPTION 1:  using SwiftUi Example
         let contentView = ContentView()
         window.rootViewController = UIHostingController(rootView: contentView)
-      #elseif true //OPTION 2:  using Custom IUViewController:  ZoomableImageViewController
+      #elseif false //OPTION 2:  using Custom IUViewController:  ZoomableImageViewController
         window.rootViewController = ZoomableImageViewController()
       #elseif false //OPTION OverlaySpec with UICollectionVC with Photos
       window.rootViewController = PhotoGridCVC()
